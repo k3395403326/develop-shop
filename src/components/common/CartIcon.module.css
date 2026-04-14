@@ -1,0 +1,55 @@
+.cartLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  transition: color 0.2s ease;
+  padding: 4px;
+}
+
+.cartLink:hover {
+  color: #e1251b;
+}
+
+.cartIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #e1251b;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.cartText {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .cartText {
+    display: none;
+  }
+  
+  .cartLink {
+    padding: 8px;
+  }
+}

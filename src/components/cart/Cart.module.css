@@ -1,0 +1,264 @@
+.cart {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.itemCount {
+  font-size: 16px;
+  color: #666;
+}
+
+.emptyCart {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.emptyIcon {
+  font-size: 64px;
+  color: #ddd;
+  margin-bottom: 16px;
+}
+
+.emptyTitle {
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.emptyDescription {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 24px;
+}
+
+.shopNowButton {
+  padding: 12px 24px;
+  background-color: #e4393c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.2s;
+}
+
+.shopNowButton:hover {
+  background-color: #c73235;
+  text-decoration: none;
+  color: white;
+}
+
+.cartContent {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+}
+
+.itemsList {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.listHeader {
+  display: grid;
+  grid-template-columns: 1fr 120px 120px 120px 60px;
+  gap: 16px;
+  padding: 16px 20px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 500;
+  color: #666;
+  font-size: 14px;
+}
+
+.selectAll {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  grid-column: 1;
+}
+
+.selectAllCheckbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.summary {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.summaryTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.summaryLabel {
+  color: #666;
+}
+
+.summaryValue {
+  color: #333;
+  font-weight: 500;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0;
+  padding: 16px 0;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.totalLabel {
+  color: #333;
+}
+
+.totalValue {
+  color: #e4393c;
+  font-size: 24px;
+}
+
+.checkoutButton {
+  width: 100%;
+  padding: 16px;
+  background-color: #e4393c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 12px;
+}
+
+.checkoutButton:hover {
+  background-color: #c73235;
+}
+
+.checkoutButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.clearCartButton {
+  width: 100%;
+  padding: 12px;
+  background-color: white;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clearCartButton:hover {
+  background-color: #f8f8f8;
+  border-color: #e4393c;
+  color: #e4393c;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.continueShoppingButton {
+  flex: 1;
+  padding: 12px;
+  background-color: white;
+  color: #e4393c;
+  border: 2px solid #e4393c;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.continueShoppingButton:hover {
+  background-color: #e4393c;
+  color: white;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .cart {
+    padding: 16px 12px;
+  }
+  
+  .cartContent {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .listHeader {
+    display: none;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .summary {
+    position: static;
+    order: -1;
+  }
+  
+  .actions {
+    flex-direction: column;
+  }
+}

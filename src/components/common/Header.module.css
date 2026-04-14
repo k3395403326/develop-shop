@@ -1,0 +1,139 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.noticeBar {
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.noticeInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  font-size: 12px;
+  color: #666;
+}
+
+.noticeText {
+  color: #8a8a8a;
+}
+
+.noticeLinks {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.topBar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 28px;
+  padding: 22px 0 16px;
+}
+
+.logo {
+  min-width: 180px;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+}
+
+.logoBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ff4d3f 0%, #e1251b 100%);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 14px 28px rgba(225, 37, 27, 0.25);
+}
+
+.logoMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.logoText {
+  font-size: 32px;
+  font-weight: 800;
+  color: #e1251b;
+  line-height: 1;
+}
+
+.logoSub {
+  font-size: 12px;
+  color: #9a9a9a;
+  letter-spacing: 0.08em;
+}
+
+.searchSection {
+  min-width: 0;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .noticeInner {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 0;
+  }
+
+  .topBar {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px 0 12px;
+  }
+
+  .logo {
+    min-width: auto;
+  }
+
+  .logoLink {
+    justify-content: center;
+  }
+
+  .userSection {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .noticeBar {
+    display: none;
+  }
+
+  .logoText {
+    font-size: 26px;
+  }
+
+  .logoBadge {
+    width: 46px;
+    height: 46px;
+    font-size: 18px;
+  }
+}

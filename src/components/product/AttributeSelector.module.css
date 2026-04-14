@@ -1,0 +1,178 @@
+.attributeSelector {
+  margin-bottom: 24px;
+}
+
+.attributeGroup {
+  margin-bottom: 20px;
+}
+
+.attributeLabel {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.optionsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.optionButton {
+  padding: 8px 16px;
+  border: 2px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: all 0.2s;
+  min-width: 60px;
+  text-align: center;
+  position: relative;
+}
+
+.optionButton:hover {
+  border-color: #e4393c;
+  color: #e4393c;
+}
+
+.optionButton.selected {
+  border-color: #e4393c;
+  background-color: #e4393c;
+  color: white;
+}
+
+.optionButton.disabled {
+  border-color: #f0f0f0;
+  background-color: #f8f8f8;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.optionButton.disabled:hover {
+  border-color: #f0f0f0;
+  color: #ccc;
+}
+
+/* 颜色选项特殊样式 */
+.colorOption {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.colorOption.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.colorSwatch {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: none;
+}
+
+/* 预定义颜色 */
+.colorBlack {
+  background-color: #333;
+}
+
+.colorWhite {
+  background-color: #fff;
+  border-color: #ddd !important;
+}
+
+.colorBlue {
+  background-color: #4285f4;
+}
+
+.colorRed {
+  background-color: #e4393c;
+}
+
+.colorGold {
+  background-color: #ffd700;
+}
+
+.colorSilver {
+  background-color: #c0c0c0;
+}
+
+.colorGreen {
+  background-color: #34a853;
+}
+
+.colorPink {
+  background-color: #ff69b4;
+}
+
+/* 尺码选项样式 */
+.sizeOption {
+  min-width: 50px;
+  font-weight: 500;
+}
+
+/* 规格选项样式 */
+.specOption {
+  min-width: 80px;
+}
+
+.priceModifier {
+  font-size: 12px;
+  color: #666;
+  margin-left: 4px;
+}
+
+.priceModifier.positive {
+  color: #e4393c;
+}
+
+.priceModifier.negative {
+  color: #34a853;
+}
+
+.attributeError {
+  color: #e4393c;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.requiredIndicator {
+  color: #e4393c;
+  margin-left: 4px;
+}
+
+@media (max-width: 768px) {
+  .optionButton {
+    padding: 6px 12px;
+    font-size: 13px;
+    min-width: 50px;
+  }
+  
+  .colorOption {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .sizeOption {
+    min-width: 45px;
+  }
+  
+  .specOption {
+    min-width: 70px;
+  }
+}
