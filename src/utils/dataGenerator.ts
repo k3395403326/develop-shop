@@ -1,12 +1,10 @@
 import { Product, ProductAttribute } from '../types';
 import { generateProductImages } from './imageUtils';
 
-export const categories = [
+const defaultCategories = [
   '手机数码',
   '电脑办公',
   '家用电器',
-  '服饰内衣',
-  '家居家装',
   '美妆护肤',
   '运动户外',
   '汽车用品',
@@ -21,52 +19,54 @@ const colorOptions = [
   { value: 'silver', label: '月光银' },
 ];
 
-const sizeOptions = [
-  { value: 's', label: 'S' },
-  { value: 'm', label: 'M' },
-  { value: 'l', label: 'L' },
-  { value: 'xl', label: 'XL' },
-  { value: 'xxl', label: 'XXL' },
-];
-
 const storageOptions = [
-  { value: '128gb', label: '128GB' },
   { value: '256gb', label: '256GB' },
   { value: '512gb', label: '512GB' },
   { value: '1tb', label: '1TB' },
 ];
 
-const productNameTemplates: Record<string, string[]> = {
-  手机数码: ['iPhone 15 Pro', 'Mate 60 Pro', 'X100 Pro', 'Find X7', '小米 14 Ultra', 'Galaxy S24'],
-  电脑办公: ['MacBook Pro 14', 'ThinkPad X1', 'ROG 幻 16', 'Surface Laptop', 'iPad Pro 11', '戴尔 XPS 13'],
-  家用电器: ['超薄冰箱', '智能空调', '滚筒洗衣机', '65 英寸电视', '洗烘一体机', '扫拖机器人'],
-  服饰内衣: ['轻暖羽绒服', '跑步运动鞋', '针织开衫', '工装长裤', '休闲卫衣', '牛仔夹克'],
-  家居家装: ['原木书桌', '护脊床垫', '人体工学椅', '静音台灯', '净水器', '收纳边柜'],
-  美妆护肤: ['修护精华', '高保湿面霜', '轻透粉底液', '防晒乳', '香氛身体乳', '舒缓洁面'],
-  运动户外: ['专业跑鞋', '速干外套', '登山双肩包', '运动手表', '训练短裤', '露营天幕'],
-  汽车用品: ['行车记录仪', '车载香氛', '应急电源', '胎压监测器', '无线吸尘器', '玻璃修复剂'],
-};
+const laptopOptions = [
+  { value: '16gb-1tb', label: '16GB + 1TB' },
+  { value: '32gb-1tb', label: '32GB + 1TB' },
+  { value: '32gb-2tb', label: '32GB + 2TB' },
+];
 
-const priceRanges: Record<string, { min: number; max: number }> = {
-  手机数码: { min: 2499, max: 9999 },
-  电脑办公: { min: 2999, max: 15999 },
-  家用电器: { min: 399, max: 6999 },
-  服饰内衣: { min: 79, max: 899 },
-  家居家装: { min: 99, max: 4999 },
-  美妆护肤: { min: 59, max: 899 },
-  运动户外: { min: 129, max: 2999 },
-  汽车用品: { min: 49, max: 2599 },
+const applianceOptions = [
+  { value: 'standard', label: '标准版' },
+  { value: 'national-subsidy', label: '国补到手价' },
+];
+
+const beautyOptions = [
+  { value: 'single', label: '单品装' },
+  { value: 'gift-box', label: '礼盒装' },
+];
+
+const sportOptions = [
+  { value: 'standard', label: '标准版' },
+  { value: 'pro', label: '进阶版' },
+];
+
+const carOptions = [
+  { value: 'single-record', label: '单录版' },
+  { value: 'front-rear', label: '前后双录' },
+];
+
+const fallbackNames: Record<string, string[]> = {
+  手机数码: ['小米 15', 'vivo X200', 'REDMI Note 15 Pro'],
+  电脑办公: ['机械革命 极光X', '惠普 暗影精灵11', '机械革命 蛟龙16 Pro'],
+  家用电器: ['海尔 家宴冰箱', '小天鹅 洗烘一体机', 'TCL 真省电空调'],
+  美妆护肤: ['兰蔻 小黑瓶', '珀莱雅 红宝石面霜', '安热沙 小金瓶'],
+  运动户外: ['特步 两千公里五代', '安踏 毒刺7代', '牧高笛 零动155'],
+  汽车用品: ['70迈 A400 Pro', '360 M320', '海康威视 N6+'],
 };
 
 const categoryHighlights: Record<string, string[]> = {
-  手机数码: ['高刷屏幕', '旗舰芯片', '全天续航'],
-  电脑办公: ['高效办公', '轻薄便携', '稳定散热'],
-  家用电器: ['节能省电', '低噪运行', '智能联动'],
-  服饰内衣: ['舒适亲肤', '版型利落', '四季百搭'],
-  家居家装: ['做工扎实', '空间友好', '日常耐用'],
-  美妆护肤: ['温和配方', '肤感轻盈', '通勤友好'],
-  运动户外: ['轻量耐磨', '透气支撑', '户外实用'],
-  汽车用品: ['安装便捷', '车内整洁', '出行安心'],
+  手机数码: ['热门机型', '国家补贴', '高口碑晒单'],
+  电脑办公: ['高性能配置', '电竞办公两用', '热销榜单常驻'],
+  家用电器: ['爆款家电', '以旧换新', '次日送装'],
+  美妆护肤: ['回购率高', '礼盒热卖', '通勤送礼都合适'],
+  运动户外: ['训练露营两相宜', '轻量耐用', '近期热搜高频'],
+  汽车用品: ['装车即用', '夜视清晰', '评价数持续增长'],
 };
 
 const randomInt = (min: number, max: number): number =>
@@ -74,69 +74,70 @@ const randomInt = (min: number, max: number): number =>
 
 const pickOne = <T,>(items: T[]): T => items[randomInt(0, items.length - 1)];
 
-const pickMany = <T,>(items: T[], minCount: number, maxCount: number): T[] => {
-  const count = Math.min(items.length, randomInt(minCount, maxCount));
-  const shuffled = [...items].sort(() => Math.random() - 0.5);
-
-  return shuffled.slice(0, count);
-};
-
 const buildDescription = (name: string, category: string): string => {
-  const highlights = pickMany(categoryHighlights[category] ?? ['品质稳定', '现货直发', '适合日常'], 2, 3);
+  const highlights = categoryHighlights[category] ?? ['品质稳定', '现货速发', '评价不错'];
 
-  return `${name} 采用 ${highlights.join('、')} 的配置思路，适合日常使用、送礼或自用，整体体验更稳妥。`;
+  return `${name} 属于 ${category} 会场里的高热度单品，主打 ${highlights.join('、')}，适合近期换新或直接下单。`;
 };
 
-const generatePrice = (category: string): { price: number; originalPrice?: number } => {
-  const range = priceRanges[category] ?? { min: 99, max: 1999 };
-  const price = randomInt(range.min, range.max);
-  const hasDiscount = Math.random() < 0.6;
-  const originalPrice = hasDiscount ? randomInt(price + 80, Math.round(price * 1.35)) : undefined;
+const fallbackAttributes = (category: string): ProductAttribute[] => {
+  if (category === '手机数码') {
+    return [
+      { name: '颜色', type: 'color', options: colorOptions.slice(0, 4) },
+      { name: '存储', type: 'specification', options: storageOptions },
+    ];
+  }
 
-  return {
+  if (category === '电脑办公') {
+    return [
+      { name: '颜色', type: 'color', options: colorOptions.slice(0, 3) },
+      { name: '配置', type: 'specification', options: laptopOptions },
+    ];
+  }
+
+  if (category === '家用电器') {
+    return [{ name: '方案', type: 'specification', options: applianceOptions }];
+  }
+
+  if (category === '美妆护肤') {
+    return [{ name: '规格', type: 'specification', options: beautyOptions }];
+  }
+
+  if (category === '运动户外') {
+    return [{ name: '版本', type: 'specification', options: sportOptions }];
+  }
+
+  return [{ name: '套餐', type: 'specification', options: carOptions }];
+};
+
+const fallbackPriceRange: Record<string, { min: number; max: number }> = {
+  手机数码: { min: 1899, max: 5699 },
+  电脑办公: { min: 4999, max: 9999 },
+  家用电器: { min: 899, max: 4599 },
+  美妆护肤: { min: 129, max: 899 },
+  运动户外: { min: 199, max: 2499 },
+  汽车用品: { min: 199, max: 1499 },
+};
+
+const generateFallbackProduct = (id: string, category: string): Product => {
+  const priceRange = fallbackPriceRange[category] ?? { min: 199, max: 1999 };
+  const price = randomInt(priceRange.min, priceRange.max);
+  const originalPrice = Math.round(price * 1.15);
+  const name = pickOne(fallbackNames[category] ?? ['精选热卖单品']);
+
+  return normalizeProduct({
+    id,
+    name,
     price,
-    originalPrice: originalPrice && originalPrice > price ? originalPrice : undefined,
-  };
-};
-
-const generateAttributes = (category: string): ProductAttribute[] => {
-  if (category === '服饰内衣') {
-    return [
-      {
-        name: '颜色',
-        type: 'color',
-        options: pickMany(colorOptions, 3, 5),
-      },
-      {
-        name: '尺码',
-        type: 'size',
-        options: pickMany(sizeOptions, 3, 5),
-      },
-    ];
-  }
-
-  if (category === '手机数码' || category === '电脑办公') {
-    return [
-      {
-        name: '颜色',
-        type: 'color',
-        options: pickMany(colorOptions, 3, 5),
-      },
-      {
-        name: category === '手机数码' ? '存储' : '版本',
-        type: 'specification',
-        options: pickMany(storageOptions, 2, 4),
-      },
-    ];
-  }
-
-  return [
-    {
-      name: '颜色',
-      type: 'color',
-      options: pickMany(colorOptions, 2, 4),
-    },
-  ];
+    originalPrice,
+    images: generateProductImages(id, category, name),
+    description: buildDescription(name, category),
+    category,
+    attributes: fallbackAttributes(category),
+    stock: randomInt(8, 96),
+    rating: Number((4.5 + Math.random() * 0.4).toFixed(1)),
+    reviewCount: randomInt(1200, 200000),
+  });
 };
 
 export const normalizeProduct = (product: Product): Product => {
@@ -155,11 +156,15 @@ export const normalizeProduct = (product: Product): Product => {
     price: safePrice,
     originalPrice: safeOriginalPrice,
     description: safeDescription,
-    images: safeImages.length > 0 ? safeImages : generateProductImages(product.id, safeCategory, safeName),
-    attributes: product.attributes.filter((attribute) => attribute.options.length > 0),
+    images:
+      safeImages.length > 0 ? safeImages : generateProductImages(product.id || safeName, safeCategory, safeName),
+    attributes:
+      product.attributes.length > 0
+        ? product.attributes.filter((attribute) => attribute.options.length > 0)
+        : fallbackAttributes(safeCategory),
     stock: Math.max(0, Math.round(product.stock)),
-    rating: Math.min(5, Math.max(3.6, Number(product.rating) || 4.5)),
-    reviewCount: Math.max(12, Math.round(product.reviewCount || 50)),
+    rating: Math.min(5, Math.max(3.8, Number(product.rating) || 4.7)),
+    reviewCount: Math.max(50, Math.round(product.reviewCount || 200)),
   };
 };
 
@@ -173,31 +178,15 @@ export const isRenderableProduct = (product: Product): boolean =>
       product.images.length > 0,
   );
 
-export const generateProduct = (id: string, category: string): Product => {
-  const name = pickOne(productNameTemplates[category] ?? ['精选单品']);
-  const { price, originalPrice } = generatePrice(category);
-  const product: Product = {
-    id,
-    name,
-    price,
-    originalPrice,
-    images: generateProductImages(id, category, name),
-    description: buildDescription(name, category),
-    category,
-    attributes: generateAttributes(category),
-    stock: Math.random() < 0.08 ? 0 : randomInt(6, 88),
-    rating: Number((3.8 + Math.random() * 1.1).toFixed(1)),
-    reviewCount: randomInt(36, 2400),
-  };
-
-  return normalizeProduct(product);
-};
-
-export const generateProducts = (count: number = 48): Product[] =>
+export const generateProducts = (count: number = 24): Product[] =>
   Array.from({ length: count }, (_, index) => {
-    const category = pickOne(categories);
+    const category = defaultCategories[index % defaultCategories.length];
 
-    return generateProduct(`product-${index + 1}`, category);
+    return generateFallbackProduct(`fallback-${index + 1}`, category);
   }).filter(isRenderableProduct);
 
-export const getCategories = (): string[] => [...categories];
+export const getCategories = (products: Product[] = []): string[] => {
+  const sourceCategories = Array.from(new Set(products.map((product) => product.category).filter(Boolean)));
+
+  return sourceCategories.length > 0 ? sourceCategories : [...defaultCategories];
+};

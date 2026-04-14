@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
 import { AppAction, AppContextType, AppState, Product } from '../types';
-import { generateProducts, getCategories, isRenderableProduct, normalizeProduct } from '../utils/dataGenerator';
+import { getCategories, isRenderableProduct } from '../utils/dataGenerator';
+import { fetchTrendingProducts, getFallbackTrendingProducts } from '../services/trendingProductsService';
 
 const initialState: AppState = {
   products: [],
@@ -53,8 +54,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       try {
         dispatch({ type: 'SET_LOADING', payload: true });
 
-        const products = generateProducts(60).map(normalizeProduct).filter(isRenderableProduct);
-        const categories = getCategories();
+        let products: Product[] = [];
+
+        try {
+          products = await fetchTrendingProducts();
+        } catch (apiError) {
+          console.warn('Falling back to bundled trending products', apiError);
+          products = getFallbackTrendingProducts();
+        }
+
+        if (products.length === 0) {
+          products = getFallbackTrendingProducts();
+        }
+
+        products = products.filter(isRenderableProduct);
+        const categories = getCategories(products);
 
         await new Promise((resolve) => setTimeout(resolve, 240));
 
@@ -62,7 +76,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         dispatch({ type: 'SET_CATEGORIES', payload: categories });
       } catch (error) {
         console.error('Failed to initialize products', error);
-        dispatch({ type: 'SET_ERROR', payload: '商品数据加载失败，请刷新重试。' });
+        dispatch({ type: 'SET_ERROR', payload: '商品数据加载失败，请刷新页面后重试。' });
       }
     };
 

@@ -30,7 +30,7 @@ const ProductList: React.FC<ProductListProps> = ({ products: externalProducts })
           </svg>
         </div>
         <h3 className={styles.emptyTitle}>没有找到匹配的商品</h3>
-        <p className={styles.emptyDescription}>换个关键词试试，或者清空筛选条件重新浏览。</p>
+        <p className={styles.emptyDescription}>可以换个关键词试试，或者切换分类继续浏览热门会场。</p>
       </div>
     );
   }
@@ -38,7 +38,7 @@ const ProductList: React.FC<ProductListProps> = ({ products: externalProducts })
   return (
     <div className={styles.productList}>
       {hiddenCount > 0 ? (
-        <div className={styles.notice}>已自动隐藏 {hiddenCount} 件信息不完整的商品，避免出现空白卡片。</div>
+        <div className={styles.notice}>已自动隐藏 {hiddenCount} 个信息不完整的商品，保证页面展示更稳定。</div>
       ) : null}
 
       <div className={styles.productGrid}>

@@ -5,15 +5,23 @@
 }
 
 :root {
-  color: #0f172a;
-  background:
-    radial-gradient(circle at top, rgba(225, 37, 27, 0.08), transparent 28%),
-    linear-gradient(180deg, #fff7f5 0%, #f8fafc 18%, #f8fafc 100%);
+  --jd-red: #e1251b;
+  --jd-red-dark: #c81623;
+  --jd-orange: #ff8a00;
+  --jd-text: #1f1f1f;
+  --jd-muted: #666;
+  --jd-soft: #999;
+  --jd-line: #ebeef5;
+  --jd-card: #ffffff;
+  --jd-surface: #f7f8fa;
+  --jd-page-bg: linear-gradient(180deg, #f4f6f8 0, #f8f9fb 260px, #f4f6f8 100%);
+  color: var(--jd-text);
+  background: var(--jd-page-bg);
   font-family:
-    'Segoe UI',
+    'Microsoft YaHei',
     'PingFang SC',
     'Hiragino Sans GB',
-    'Microsoft YaHei',
+    'Segoe UI',
     sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -36,8 +44,8 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  color: #0f172a;
-  background: transparent;
+  color: var(--jd-text);
+  background: var(--jd-page-bg);
 }
 
 body,
@@ -89,11 +97,11 @@ svg {
 main {
   flex: 1;
   width: 100%;
-  padding: 0 0 36px;
+  padding: 0 0 40px;
 }
 
 .container {
-  width: min(1200px, calc(100% - 32px));
+  width: min(1190px, calc(100% - 28px));
   margin: 0 auto;
 }
 
@@ -103,7 +111,7 @@ main {
   justify-content: center;
   min-height: 42px;
   padding: 0 18px;
-  border-radius: 12px;
+  border-radius: 999px;
   border: 1px solid transparent;
   cursor: pointer;
   font-size: 14px;
@@ -130,7 +138,7 @@ main {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #f04a3f 0%, #e1251b 100%);
+  background: linear-gradient(135deg, #ff5247 0%, var(--jd-red) 100%);
   color: #fff;
   box-shadow: 0 12px 24px rgba(225, 37, 27, 0.16);
 }
@@ -141,18 +149,18 @@ main {
 
 .btn-secondary {
   background: #fff;
-  color: #1f2937;
-  border-color: #dbe2ea;
+  color: var(--jd-text);
+  border-color: #dfe3eb;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  border-color: #cbd5e1;
+  border-color: #ccd3df;
   background: #f8fafc;
 }
 
 .btn-outline {
   background: rgba(255, 255, 255, 0.85);
-  color: #b42318;
+  color: var(--jd-red-dark);
   border-color: rgba(225, 37, 27, 0.18);
 }
 
@@ -166,7 +174,7 @@ main {
   height: 44px;
   border-radius: 50%;
   border: 4px solid rgba(225, 37, 27, 0.12);
-  border-top-color: #e1251b;
+  border-top-color: var(--jd-red);
   animation: spin 0.8s linear infinite;
 }
 
@@ -178,7 +186,7 @@ main {
 
 @media (max-width: 768px) {
   .container {
-    width: min(1200px, calc(100% - 24px));
+    width: min(1190px, calc(100% - 20px));
   }
 
   main {

@@ -31,10 +31,6 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
 
     if (attribute.type === 'color') {
       classes.push(styles.colorOption);
-      const colorClass = colorClassMap[optionValue];
-      if (colorClass) {
-        classes.push(colorClass);
-      }
     }
 
     if (attribute.type === 'size') {
@@ -87,11 +83,11 @@ const AttributeSelector: React.FC<AttributeSelectorProps> = ({
           className={getOptionClassName(attribute, option.value)}
           onClick={() => handleOptionClick(attribute.name, option.value)}
           disabled={disabled}
-          title={option.label}
           type="button"
           aria-label={`选择${attribute.name}: ${option.label}`}
         >
-          <span className={styles.colorSwatch} />
+          <span className={`${styles.colorSwatch} ${colorClassMap[option.value] ?? ''}`} />
+          <span className={styles.colorText}>{option.label}</span>
         </button>
       );
     }

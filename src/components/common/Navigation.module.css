@@ -1,16 +1,32 @@
 .navigation {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  gap: 18px;
   padding: 0 0 18px;
+}
+
+.channelBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--jd-red) 0%, #ff5a47 100%);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 12px 24px rgba(225, 37, 27, 0.2);
 }
 
 .categories {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .categoryItem,
@@ -21,34 +37,33 @@
   gap: 6px;
   min-height: 40px;
   padding: 0 16px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
-  color: #475569;
+  border: 1px solid #e7e7e7;
+  background: rgba(255, 255, 255, 0.9);
+  color: #444;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
   transition:
     transform 0.18s ease,
-    background-color 0.18s ease,
-    color 0.18s ease,
     border-color 0.18s ease,
-    box-shadow 0.18s ease;
+    box-shadow 0.18s ease,
+    color 0.18s ease;
 }
 
 .categoryItem:hover,
 .sortItem:hover {
   transform: translateY(-1px);
-  border-color: rgba(225, 37, 27, 0.18);
-  color: #9a3412;
-  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+  border-color: rgba(225, 37, 27, 0.2);
+  color: var(--jd-red-dark);
+  box-shadow: 0 10px 18px rgba(31, 35, 41, 0.08);
 }
 
 .active {
-  background: linear-gradient(135deg, #fff1ef 0%, #ffe4df 100%);
-  border-color: rgba(225, 37, 27, 0.22);
-  color: #b42318;
-  box-shadow: 0 10px 20px rgba(225, 37, 27, 0.1);
+  border-color: rgba(225, 37, 27, 0.18);
+  background: linear-gradient(180deg, #fff4f1 0%, #fff 100%);
+  color: var(--jd-red-dark);
+  box-shadow: 0 10px 18px rgba(225, 37, 27, 0.12);
 }
 
 .sortOptions {
@@ -62,9 +77,13 @@
 .sortLabel {
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--jd-soft);
+}
+
+.activeSort {
+  border-color: rgba(225, 37, 27, 0.18);
+  color: var(--jd-red-dark);
+  background: #fff4f1;
 }
 
 .priceArrows {
@@ -75,13 +94,12 @@
 }
 
 .activeArrow {
-  color: #e1251b;
+  color: var(--jd-red);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .navigation {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
     gap: 12px;
   }
 
@@ -95,6 +113,11 @@
     padding-bottom: 14px;
   }
 
+  .channelBadge {
+    min-height: 38px;
+    padding: 0 16px;
+  }
+
   .categories,
   .sortOptions {
     gap: 8px;
@@ -105,10 +128,5 @@
     min-height: 36px;
     padding: 0 14px;
     font-size: 13px;
-  }
-
-  .sortLabel {
-    width: 100%;
-    margin-bottom: 2px;
   }
 }

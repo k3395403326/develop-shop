@@ -10,6 +10,8 @@ interface ProductDetailProps {
   product: Product;
 }
 
+const formatPrice = (price: number) => `¥${price.toLocaleString('zh-CN')}`;
+
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
@@ -84,20 +86,32 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         </div>
 
         <div className={styles.infoSection}>
+          <div className={styles.tagRow}>
+            <span className={styles.tag}>京选自营</span>
+            <span className={`${styles.tag} ${styles.tagLight}`}>热卖榜单</span>
+            <span className={`${styles.tag} ${styles.tagLight}`}>现货速发</span>
+          </div>
+
           <h1 className={styles.productTitle}>{product.name}</h1>
           <p className={styles.productSubtitle}>{product.description}</p>
 
           <div className={styles.priceSection}>
             <div className={styles.priceLabel}>到手价</div>
-            <div>
-              <span className={styles.currentPrice}>¥{product.price.toLocaleString()}</span>
+            <div className={styles.priceRow}>
+              <span className={styles.currentPrice}>{formatPrice(product.price)}</span>
               {product.originalPrice && product.originalPrice > product.price ? (
                 <>
-                  <span className={styles.originalPrice}>¥{product.originalPrice.toLocaleString()}</span>
-                  <span className={styles.discount}>省 ¥{saveAmount.toLocaleString()} / {discountPercentage}% OFF</span>
+                  <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}</span>
+                  <span className={styles.discount}>已省 {formatPrice(saveAmount)} / {discountPercentage}% OFF</span>
                 </>
               ) : null}
             </div>
+          </div>
+
+          <div className={styles.promiseRow}>
+            <span className={styles.promiseItem}>国家补贴会场同款</span>
+            <span className={styles.promiseItem}>支持加入购物车继续选购</span>
+            <span className={styles.promiseItem}>图片已优化为完整展示</span>
           </div>
 
           <div className={styles.metaInfo}>
@@ -106,7 +120,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
               <div className={styles.rating}>
                 <span className={styles.stars}>{starText}</span>
                 <span className={styles.ratingText}>
-                  {product.rating.toFixed(1)} ({product.reviewCount} 条评价)
+                  {product.rating.toFixed(1)} 分 · {product.reviewCount.toLocaleString('zh-CN')} 条评价
                 </span>
               </div>
             </div>
@@ -116,7 +130,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
               <span
                 className={`${styles.metaValue} ${product.stock < 10 ? styles.stockWarning : ''} ${product.stock === 0 ? styles.outOfStock : ''}`}
               >
-                {product.stock > 0 ? `${product.stock} 件` : '暂时缺货'}
+                {product.stock > 0 ? `${product.stock} 件可售` : '暂时缺货'}
               </span>
             </div>
 
@@ -142,7 +156,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
             </div>
           ) : null}
 
-          <div className={styles.actionsSection}>
+          <div className={styles.purchaseBar}>
             <div className={styles.quantitySelector}>
               <span className={styles.quantityLabel}>数量</span>
               <div className={styles.quantityControls}>
@@ -172,15 +186,15 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
                 </button>
               </div>
             </div>
-          </div>
 
-          <div className={styles.actionsSection}>
-            <button className={styles.addToCartButton} onClick={handleAddToCart} disabled={!canPurchase} type="button">
-              {product.stock === 0 ? '暂时缺货' : '加入购物车'}
-            </button>
-            <button className={styles.buyNowButton} onClick={handleBuyNow} disabled={!canPurchase} type="button">
-              {product.stock === 0 ? '暂时缺货' : '立即购买'}
-            </button>
+            <div className={styles.actionsSection}>
+              <button className={styles.addToCartButton} onClick={handleAddToCart} disabled={!canPurchase} type="button">
+                {product.stock === 0 ? '暂时缺货' : '加入购物车'}
+              </button>
+              <button className={styles.buyNowButton} onClick={handleBuyNow} disabled={!canPurchase} type="button">
+                {product.stock === 0 ? '暂时缺货' : '立即购买'}
+              </button>
+            </div>
           </div>
 
           {product.stock > 0 && product.stock < 10 ? (
@@ -193,8 +207,8 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         <h2 className={styles.descriptionTitle}>商品详情</h2>
         <div className={styles.descriptionContent}>
           <p>{product.description}</p>
-          <p>{product.name} 适合日常使用和送礼场景，页面已补全图片与信息兜底，展示会更稳定。</p>
-          <p>支持加入购物车继续挑选，也可以直接下单，页面在移动端和桌面端都能正常浏览。</p>
+          <p>{product.name} 适合日常使用、送礼或换新场景，当前页面已经统一成更偏京东风格的商品详情布局。</p>
+          <p>支持选择规格、调整数量、加入购物车和直接下单，桌面端和移动端都可以正常浏览。</p>
         </div>
       </div>
     </div>

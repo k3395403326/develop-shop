@@ -18,10 +18,13 @@ const Navigation: React.FC = () => {
 
   return (
     <nav className={styles.navigation}>
+      <div className={styles.channelBadge}>精选频道</div>
+
       <div className={styles.categories}>
         <button
           className={`${styles.categoryItem} ${!state.selectedCategory ? styles.active : ''}`}
           onClick={() => dispatch({ type: 'SET_SELECTED_CATEGORY', payload: '' })}
+          type="button"
         >
           全部分类
         </button>
@@ -31,6 +34,7 @@ const Navigation: React.FC = () => {
             key={category}
             className={`${styles.categoryItem} ${state.selectedCategory === category ? styles.active : ''}`}
             onClick={() => handleCategoryClick(category)}
+            type="button"
           >
             {category}
           </button>
@@ -41,27 +45,30 @@ const Navigation: React.FC = () => {
         <span className={styles.sortLabel}>排序</span>
 
         <button
-          className={`${styles.sortItem} ${state.sortBy === 'rating' && state.sortOrder === 'desc' ? styles.active : ''}`}
+          className={`${styles.sortItem} ${state.sortBy === 'rating' && state.sortOrder === 'desc' ? styles.activeSort : ''}`}
           onClick={() => handleSortChange('rating', 'desc')}
+          type="button"
         >
-          综合
+          综合推荐
         </button>
 
         <button
-          className={`${styles.sortItem} ${state.sortBy === 'reviewCount' && state.sortOrder === 'desc' ? styles.active : ''}`}
+          className={`${styles.sortItem} ${state.sortBy === 'reviewCount' && state.sortOrder === 'desc' ? styles.activeSort : ''}`}
           onClick={() => handleSortChange('reviewCount', 'desc')}
+          type="button"
         >
-          销量
+          热度优先
         </button>
 
         <button
-          className={`${styles.sortItem} ${state.sortBy === 'price' ? styles.active : ''}`}
+          className={`${styles.sortItem} ${state.sortBy === 'price' ? styles.activeSort : ''}`}
           onClick={() =>
             handleSortChange('price', state.sortBy === 'price' && state.sortOrder === 'asc' ? 'desc' : 'asc')
           }
+          type="button"
         >
           价格
-          <div className={styles.priceArrows}>
+          <span className={styles.priceArrows}>
             <svg
               width="8"
               height="8"
@@ -80,7 +87,7 @@ const Navigation: React.FC = () => {
             >
               <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" />
             </svg>
-          </div>
+          </span>
         </button>
       </div>
     </nav>

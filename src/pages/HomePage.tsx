@@ -1,21 +1,78 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import ProductList from '../components/product/ProductList';
 import { useApp, useFilteredProducts } from '../context/AppContext';
 import styles from './HomePage.module.css';
 
+const keywordTags = ['国家补贴', '爆款直降', '热榜更新', '自营速发', '晒单过万'];
+const serviceHighlights = [
+  { title: '多', subtitle: '热门类目更集中', description: '把高热度商品集中到首页主会场，筛选更直接。' },
+  { title: '快', subtitle: '现货商品更醒目', description: '首页优先突出可下单商品，减少点进去才发现缺货。' },
+  { title: '好', subtitle: '榜单商品更真实', description: '用近期热卖款替换随机生成商品，观感更像真实电商。' },
+  { title: '省', subtitle: '优惠信息更明确', description: '优惠金额、划线价和热度标签都做了强化展示。' },
+];
+
+const formatPrice = (price: number) => `¥${price.toLocaleString('zh-CN')}`;
+
 const HomePage: React.FC = () => {
-  const { state } = useApp();
+  const { state, dispatch } = useApp();
   const filteredProducts = useFilteredProducts();
-  const discountCount = filteredProducts.filter(
-    (product) => product.originalPrice && product.originalPrice > product.price,
-  ).length;
   const inStockCount = filteredProducts.filter((product) => product.stock > 0).length;
+  const discountProducts = filteredProducts.filter(
+    (product) => product.originalPrice && product.originalPrice > product.price,
+  );
+  const totalSavings = discountProducts.reduce(
+    (sum, product) => sum + ((product.originalPrice ?? product.price) - product.price),
+    0,
+  );
+
+  const topDeals = useMemo(
+    () =>
+      [...filteredProducts]
+        .sort(
+          (a, b) =>
+            (b.originalPrice ?? b.price) -
+            b.price -
+            ((a.originalPrice ?? a.price) - a.price),
+        )
+        .slice(0, 4),
+    [filteredProducts],
+  );
+
+  const hotRankings = useMemo(
+    () => [...filteredProducts].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 4),
+    [filteredProducts],
+  );
+
+  const categoryShowcase = useMemo(
+    () =>
+      state.categories.map((category) => {
+        const items = state.products.filter((product) => product.category === category);
+
+        return {
+          category,
+          count: items.length,
+          sample: items[0],
+        };
+      }),
+    [state.categories, state.products],
+  );
+
+  const sortLabel =
+    state.sortBy === 'price'
+      ? `价格${state.sortOrder === 'asc' ? '从低到高' : '从高到低'}`
+      : state.sortBy === 'reviewCount'
+        ? '热度优先'
+        : '综合推荐';
+
+  const leadProduct = topDeals[0];
+  const currentLabel = state.selectedCategory || '首页热卖';
 
   if (state.isLoading) {
     return (
       <div className={styles.loadingContainer}>
         <div className="loading"></div>
-        <p>正在整理商品数据...</p>
+        <p>正在整理近期热卖商品，请稍候...</p>
       </div>
     );
   }
@@ -36,7 +93,7 @@ const HomePage: React.FC = () => {
         </div>
         <h3>页面加载失败</h3>
         <p>{state.error}</p>
-        <button className="btn btn-primary" onClick={() => window.location.reload()}>
+        <button className="btn btn-primary" onClick={() => window.location.reload()} type="button">
           重新加载
         </button>
       </div>
@@ -46,44 +103,227 @@ const HomePage: React.FC = () => {
   return (
     <div className={styles.homePage}>
       <div className="container">
-        <section className={styles.heroPanel}>
-          <div className={styles.heroText}>
-            <span className={styles.eyebrow}>{state.selectedCategory || '今日精选'}</span>
-            <h1 className={styles.heroTitle}>商品页已经恢复，同时补上了稳定的图片兜底。</h1>
-            <p className={styles.heroDescription}>
-              现在即使外链图片失效，商品卡片也会正常显示，不会再出现整块空白商品区域。
-            </p>
+        <section className={styles.heroSection}>
+          <aside className={styles.categoryMenu}>
+            <div className={styles.menuTitle}>全部商品分类</div>
+            <div className={styles.menuList}>
+              <button
+                className={`${styles.menuItem} ${!state.selectedCategory ? styles.menuItemActive : ''}`}
+                onClick={() => dispatch({ type: 'SET_SELECTED_CATEGORY', payload: '' })}
+                type="button"
+              >
+                <span>首页热卖</span>
+                <strong>{state.products.length} 款爆品</strong>
+              </button>
+
+              {categoryShowcase.map((item) => (
+                <button
+                  key={item.category}
+                  className={`${styles.menuItem} ${state.selectedCategory === item.category ? styles.menuItemActive : ''}`}
+                  onClick={() =>
+                    dispatch({
+                      type: 'SET_SELECTED_CATEGORY',
+                      payload: state.selectedCategory === item.category ? '' : item.category,
+                    })
+                  }
+                  type="button"
+                >
+                  <span>{item.category}</span>
+                  <strong>{item.count} 款热卖</strong>
+                </button>
+              ))}
+            </div>
+          </aside>
+
+          <div className={styles.heroCenter}>
+            <div className={styles.heroBanner}>
+              <div className={styles.heroCopy}>
+                <span className={styles.heroBadge}>首页焕新</span>
+                <h1 className={styles.heroTitle}>
+                  {state.selectedCategory ? `${state.selectedCategory} 爆款会场` : '京东风格首页已上线'}
+                </h1>
+                <p className={styles.heroDescription}>
+                  现在首页改成了更接近京东主站的导购结构，商品优先来自京东热卖榜实时抓取，失败时自动回退到内置爆款库，浏览、筛选和购买路径都更像真实商城。
+                </p>
+
+                <div className={styles.heroActions}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() =>
+                      dispatch({
+                        type: 'SET_SELECTED_CATEGORY',
+                        payload: state.selectedCategory || state.categories[0] || '',
+                      })
+                    }
+                    type="button"
+                  >
+                    进入热卖榜
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      dispatch({ type: 'SET_SELECTED_CATEGORY', payload: '' });
+                      dispatch({ type: 'SET_SEARCH_QUERY', payload: '' });
+                    }}
+                    type="button"
+                  >
+                    查看全部商品
+                  </button>
+                </div>
+
+                <div className={styles.keywordRow}>
+                  {keywordTags.map((tag) => (
+                    <span key={tag} className={styles.keywordChip}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {leadProduct ? (
+                <Link to={`/product/${leadProduct.id}`} className={styles.spotlightCard}>
+                  <span className={styles.spotlightTag}>今日主推</span>
+                  <h2 className={styles.spotlightTitle}>{leadProduct.name}</h2>
+                  <p className={styles.spotlightDescription}>{leadProduct.description}</p>
+                  <div className={styles.spotlightPrice}>{formatPrice(leadProduct.price)}</div>
+                  <div className={styles.spotlightMeta}>
+                    <span>{leadProduct.reviewCount.toLocaleString('zh-CN')} 条评价</span>
+                    <span>{leadProduct.rating.toFixed(1)} 高分</span>
+                  </div>
+                </Link>
+              ) : null}
+            </div>
+
+            <div className={styles.metricGrid}>
+              <div className={styles.metricCard}>
+                <span className={styles.metricLabel}>当前会场商品</span>
+                <strong className={styles.metricValue}>{filteredProducts.length}</strong>
+              </div>
+              <div className={styles.metricCard}>
+                <span className={styles.metricLabel}>现货可下单</span>
+                <strong className={styles.metricValue}>{inStockCount}</strong>
+              </div>
+              <div className={styles.metricCard}>
+                <span className={styles.metricLabel}>累计可省</span>
+                <strong className={styles.metricValue}>{formatPrice(totalSavings)}</strong>
+              </div>
+            </div>
           </div>
 
-          <div className={styles.statGrid}>
-            <div className={styles.statCard}>
-              <span className={styles.statLabel}>可展示商品</span>
-              <strong className={styles.statValue}>{filteredProducts.length}</strong>
+          <aside className={styles.heroAside}>
+            <div className={styles.memberCard}>
+              <span className={styles.memberTag}>会员专享</span>
+              <h3 className={styles.memberTitle}>领券再下单</h3>
+              <p className={styles.memberDescription}>热卖榜、折扣价和现货信息都汇总在首页，逛起来更像真正的电商会场。</p>
+              <div className={styles.memberList}>
+                <span>爆款商品优先展示</span>
+                <span>优惠信息集中呈现</span>
+                <span>图片完整展示不裁切</span>
+              </div>
             </div>
-            <div className={styles.statCard}>
-              <span className={styles.statLabel}>现货商品</span>
-              <strong className={styles.statValue}>{inStockCount}</strong>
+
+            <div className={styles.rankCard}>
+              <div className={styles.sectionHeading}>
+                <div>
+                  <h3 className={styles.sectionTitle}>热度排行</h3>
+                  <p className={styles.sectionSub}>最近最受关注的商品</p>
+                </div>
+              </div>
+              <div className={styles.rankList}>
+                {hotRankings.map((product, index) => (
+                  <Link key={product.id} to={`/product/${product.id}`} className={styles.rankItem}>
+                    <span className={styles.rankIndex}>{index + 1}</span>
+                    <div className={styles.rankContent}>
+                      <strong>{product.name}</strong>
+                      <span>{product.reviewCount.toLocaleString('zh-CN')} 条评价</span>
+                    </div>
+                    <span className={styles.rankPrice}>{formatPrice(product.price)}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
-            <div className={styles.statCard}>
-              <span className={styles.statLabel}>优惠商品</span>
-              <strong className={styles.statValue}>{discountCount}</strong>
+          </aside>
+        </section>
+
+        <section className={styles.promiseBar}>
+          {serviceHighlights.map((item) => (
+            <article key={item.title} className={styles.promiseCard}>
+              <span className={styles.promiseSymbol}>{item.title}</span>
+              <div>
+                <h3 className={styles.promiseTitle}>{item.subtitle}</h3>
+                <p className={styles.promiseDescription}>{item.description}</p>
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section className={styles.flashSection}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <h2 className={styles.sectionTitle}>限时好价</h2>
+              <p className={styles.sectionSub}>优先展示优惠幅度更明显的爆款商品</p>
             </div>
+            <span className={styles.sectionMeta}>{discountProducts.length} 款直降商品</span>
+          </div>
+
+          <div className={styles.flashGrid}>
+            {topDeals.map((product) => (
+              <Link key={product.id} to={`/product/${product.id}`} className={styles.flashCard}>
+                <div>
+                  <span className={styles.flashTag}>限时直降</span>
+                  <h3 className={styles.flashTitle}>{product.name}</h3>
+                  <p className={styles.flashDescription}>{product.description}</p>
+                </div>
+                <div className={styles.flashBottom}>
+                  <div>
+                    <span className={styles.flashPrice}>{formatPrice(product.price)}</span>
+                    {product.originalPrice ? (
+                      <span className={styles.flashOriginalPrice}>{formatPrice(product.originalPrice)}</span>
+                    ) : null}
+                  </div>
+                  <span className={styles.flashAction}>立即查看</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 
-        <section className={styles.pageHeader}>
+        <section className={styles.channelSection}>
+          <div className={styles.sectionHeading}>
+            <div>
+              <h2 className={styles.sectionTitle}>频道会场</h2>
+              <p className={styles.sectionSub}>按热门分类快速切换浏览体验</p>
+            </div>
+          </div>
+
+          <div className={styles.channelGrid}>
+            {categoryShowcase.map((item) => (
+              <button
+                key={item.category}
+                className={`${styles.channelCard} ${state.selectedCategory === item.category ? styles.channelCardActive : ''}`}
+                onClick={() => dispatch({ type: 'SET_SELECTED_CATEGORY', payload: item.category })}
+                type="button"
+              >
+                <span className={styles.channelName}>{item.category}</span>
+                <strong className={styles.channelCount}>{item.count} 款热卖</strong>
+                <span className={styles.channelSample}>{item.sample?.name ?? '点击查看本会场商品'}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.floorHeader}>
           <div>
-            <h2 className={styles.pageTitle}>
-              {state.selectedCategory ? `${state.selectedCategory} 商品` : '全部商品'}
-            </h2>
-            <p className={styles.productCount}>共找到 {filteredProducts.length} 件可正常展示的商品</p>
+            <h2 className={styles.floorTitle}>{currentLabel} 商品列表</h2>
+            <p className={styles.floorDescription}>
+              共找到 {filteredProducts.length} 款商品，当前排序为 {sortLabel}
+            </p>
           </div>
 
           <div className={styles.metaChips}>
-            {state.searchQuery ? <span className={styles.chip}>搜索: {state.searchQuery}</span> : null}
-            <span className={styles.chip}>
-              排序: {state.sortBy === 'price' ? '价格' : state.sortBy === 'reviewCount' ? '销量' : '评分'}
-            </span>
+            {state.searchQuery ? <span className={styles.chip}>搜索词：{state.searchQuery}</span> : null}
+            <span className={styles.chip}>在售现货：{inStockCount}</span>
+            <span className={styles.chip}>优惠商品：{discountProducts.length}</span>
           </div>
         </section>
 

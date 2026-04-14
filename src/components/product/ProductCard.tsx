@@ -12,10 +12,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const primaryImage =
     product.images.find((image) => image.trim().length > 0) ?? getDefaultImage(300, 300, product.name);
   const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
   const gradientId = useId().replace(/:/g, '-');
+  const saveAmount = (product.originalPrice ?? product.price) - product.price;
 
-  const formatPrice = (price: number): string => `¥${price.toLocaleString()}`;
+  const formatPrice = (price: number): string => `¥${price.toLocaleString('zh-CN')}`;
 
   const renderStars = (rating: number): JSX.Element[] => {
     const stars: JSX.Element[] = [];
@@ -63,32 +64,35 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <div className={styles.productCard}>
       <Link to={`/product/${product.id}`} className={styles.productLink}>
         <div className={styles.imageContainer}>
-          {imageLoading ? (
-            <div className={styles.imagePlaceholder}>
-              <div className="loading"></div>
-            </div>
-          ) : null}
+          <div className={styles.imageStage}>
+            {imageLoading ? (
+              <div className={styles.imagePlaceholder}>
+                <div className="loading"></div>
+              </div>
+            ) : null}
 
-          <img
-            src={imageError ? getDefaultImage(300, 300, product.name) : primaryImage}
-            alt={product.name}
-            className={`${styles.productImage} ${imageLoading ? styles.hidden : ''}`}
-            onError={() => {
-              setImageError(true);
-              setImageLoading(false);
-            }}
-            onLoad={() => setImageLoading(false)}
-          />
+            <img
+              src={imageError ? getDefaultImage(300, 300, product.name) : primaryImage}
+              alt={product.name}
+              className={`${styles.productImage} ${imageLoading ? styles.hidden : ''}`}
+              onError={() => {
+                setImageError(true);
+                setImageLoading(false);
+              }}
+              onLoad={() => setImageLoading(false)}
+              loading="lazy"
+            />
+          </div>
 
-          {product.originalPrice && product.originalPrice > product.price ? (
-            <div className={styles.discountBadge}>
-              省 ¥{(product.originalPrice - product.price).toLocaleString()}
-            </div>
-          ) : null}
+          <div className={styles.badgeRow}>
+            <span className={styles.categoryBadge}>{product.category}</span>
+            {saveAmount > 0 ? <span className={styles.discountBadge}>省 {formatPrice(saveAmount)}</span> : null}
+          </div>
         </div>
 
         <div className={styles.productInfo}>
           <h3 className={styles.productName}>{product.name}</h3>
+          <p className={styles.productDescription}>{product.description}</p>
 
           <div className={styles.priceSection}>
             <span className={styles.currentPrice}>{formatPrice(product.price)}</span>
@@ -100,17 +104,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className={styles.ratingSection}>
             <div className={styles.stars}>{renderStars(product.rating)}</div>
             <span className={styles.rating}>{product.rating.toFixed(1)}</span>
-            <span className={styles.reviewCount}>({product.reviewCount})</span>
+            <span className={styles.reviewCount}>{product.reviewCount.toLocaleString('zh-CN')} 条评价</span>
           </div>
 
-          <div className={styles.categoryTag}>{product.category}</div>
-
-          <div className={styles.stockInfo}>
-            {product.stock > 0 ? (
-              <span className={styles.inStock}>现货速发</span>
-            ) : (
-              <span className={styles.outOfStock}>暂时缺货</span>
-            )}
+          <div className={styles.footerRow}>
+            <span className={styles.stockTag}>{product.stock > 0 ? '现货速发' : '暂时缺货'}</span>
+            <span className={styles.detailLink}>查看详情</span>
           </div>
         </div>
       </Link>

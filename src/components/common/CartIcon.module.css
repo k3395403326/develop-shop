@@ -1,15 +1,26 @@
 .cartLink {
-  display: flex;
-  flex-direction: column;
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  text-decoration: none;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
   color: #333;
-  transition: color 0.2s ease;
-  padding: 4px;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .cartLink:hover {
-  color: #e1251b;
+  color: var(--jd-red);
+  border-color: rgba(225, 37, 27, 0.18);
+  box-shadow: 0 12px 24px rgba(225, 37, 27, 0.08);
+  transform: translateY(-1px);
 }
 
 .cartIcon {
@@ -17,19 +28,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2px;
 }
 
 .badge {
   position: absolute;
   top: -8px;
-  right: -8px;
-  background: #e1251b;
+  right: -10px;
+  background: var(--jd-red);
   color: white;
   font-size: 10px;
-  font-weight: bold;
+  font-weight: 700;
   padding: 2px 6px;
-  border-radius: 10px;
+  border-radius: 999px;
   min-width: 16px;
   height: 16px;
   display: flex;
@@ -39,17 +49,17 @@
 }
 
 .cartText {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 700;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
+  .cartLink {
+    padding: 0 14px;
+    min-height: 44px;
+  }
+
   .cartText {
     display: none;
-  }
-  
-  .cartLink {
-    padding: 8px;
   }
 }

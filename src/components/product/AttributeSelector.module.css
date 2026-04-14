@@ -7,9 +7,9 @@
 }
 
 .attributeLabel {
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--jd-text);
   margin-bottom: 12px;
   display: block;
 }
@@ -17,83 +17,79 @@
 .optionsList {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .optionButton {
-  padding: 8px 16px;
-  border: 2px solid #ddd;
-  background-color: white;
-  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid #dbe2ea;
+  background: white;
+  border-radius: 999px;
   cursor: pointer;
   font-size: 14px;
-  color: #333;
-  transition: all 0.2s;
-  min-width: 60px;
-  text-align: center;
-  position: relative;
+  color: #334155;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    color 0.2s,
+    transform 0.2s;
+  min-width: 72px;
 }
 
 .optionButton:hover {
-  border-color: #e4393c;
-  color: #e4393c;
+  border-color: rgba(225, 37, 27, 0.22);
+  color: var(--jd-red-dark);
+  box-shadow: 0 10px 18px rgba(225, 37, 27, 0.1);
+  transform: translateY(-1px);
 }
 
 .optionButton.selected {
-  border-color: #e4393c;
-  background-color: #e4393c;
-  color: white;
+  border-color: rgba(225, 37, 27, 0.22);
+  background: #fff4f1;
+  color: var(--jd-red-dark);
 }
 
 .optionButton.disabled {
-  border-color: #f0f0f0;
-  background-color: #f8f8f8;
-  color: #ccc;
+  border-color: #edf2f7;
+  background: #f8fafc;
+  color: #94a3b8;
   cursor: not-allowed;
 }
 
 .optionButton.disabled:hover {
-  border-color: #f0f0f0;
-  color: #ccc;
+  border-color: #edf2f7;
+  color: #94a3b8;
+  box-shadow: none;
+  transform: none;
 }
 
-/* 颜色选项特殊样式 */
 .colorOption {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  padding: 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.colorOption.selected::after {
-  content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+  min-width: 108px;
+  justify-content: flex-start;
 }
 
 .colorSwatch {
-  width: 100%;
-  height: 100%;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: none;
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
-/* 预定义颜色 */
+.colorText {
+  font-size: 13px;
+}
+
 .colorBlack {
   background-color: #333;
 }
 
 .colorWhite {
   background-color: #fff;
-  border-color: #ddd !important;
 }
 
 .colorBlue {
@@ -120,59 +116,46 @@
   background-color: #ff69b4;
 }
 
-/* 尺码选项样式 */
 .sizeOption {
-  min-width: 50px;
-  font-weight: 500;
+  min-width: 60px;
+  font-weight: 700;
 }
 
-/* 规格选项样式 */
 .specOption {
-  min-width: 80px;
+  min-width: 98px;
 }
 
 .priceModifier {
   font-size: 12px;
-  color: #666;
-  margin-left: 4px;
 }
 
 .priceModifier.positive {
-  color: #e4393c;
+  color: var(--jd-red-dark);
 }
 
 .priceModifier.negative {
-  color: #34a853;
+  color: #0f9f6e;
 }
 
 .attributeError {
-  color: #e4393c;
+  color: var(--jd-red);
   font-size: 12px;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .requiredIndicator {
-  color: #e4393c;
+  color: var(--jd-red);
   margin-left: 4px;
 }
 
 @media (max-width: 768px) {
   .optionButton {
-    padding: 6px 12px;
+    min-height: 40px;
+    padding: 0 14px;
     font-size: 13px;
-    min-width: 50px;
   }
-  
+
   .colorOption {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .sizeOption {
-    min-width: 45px;
-  }
-  
-  .specOption {
-    min-width: 70px;
+    min-width: 96px;
   }
 }

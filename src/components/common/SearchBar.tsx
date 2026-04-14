@@ -3,7 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import styles from './SearchBar.module.css';
 
-const suggestionPool = ['手机', '电脑', '耳机', '跑鞋', '空调', '护肤', '露营', '行车记录仪', '收纳柜', '台灯'];
+const defaultSuggestionPool = [
+  '华为 nova 14 Ultra',
+  '小米 15 Pro',
+  '机械革命 极光X',
+  '暗影精灵11',
+  '海尔 家宴冰箱',
+  '小天鹅 洗烘一体机',
+  '兰蔻 小黑瓶',
+  '安热沙 小金瓶',
+  '特步 两千公里五代',
+  '70迈 记录仪',
+];
 
 const SearchBar: React.FC = () => {
   const navigate = useNavigate();
@@ -11,6 +22,7 @@ const SearchBar: React.FC = () => {
   const [inputValue, setInputValue] = useState(state.searchQuery);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const suggestionPool = state.products.length > 0 ? state.products.slice(0, 10).map((product) => product.name) : defaultSuggestionPool;
 
   const suggestions = suggestionPool.filter((suggestion) =>
     inputValue.trim() ? suggestion.toLowerCase().includes(inputValue.trim().toLowerCase()) : false,
@@ -24,6 +36,10 @@ const SearchBar: React.FC = () => {
     setShowSuggestions(false);
     navigate(nextQuery ? '/search' : '/');
   };
+
+  useEffect(() => {
+    setInputValue(state.searchQuery);
+  }, [state.searchQuery]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -51,11 +67,11 @@ const SearchBar: React.FC = () => {
             if (event.key === 'Escape') setShowSuggestions(false);
           }}
           onFocus={() => setShowSuggestions(inputValue.trim().length > 0)}
-          placeholder="搜索商品、品牌或分类"
+          placeholder="搜索手机、游戏本、空调、精华、防晒"
           className={styles.searchInput}
         />
 
-        <button onClick={() => handleSearch()} className={styles.searchButton} type="button" aria-label="搜索">
+        <button onClick={() => handleSearch()} className={styles.searchButton} type="button" aria-label="搜索商品">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               d="M21 21L16.514 16.506M19 10.5C19 15.194 15.194 19 10.5 19S2 15.194 2 10.5 5.806 2 10.5 2 19 5.806 19 10.5Z"

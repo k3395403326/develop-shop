@@ -21,14 +21,19 @@ const ProductImages: React.FC<ProductImagesProps> = ({
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
-  const [imageLoading, setImageLoading] = useState<Record<number, boolean>>({ 0: false });
+  const [imageLoading, setImageLoading] = useState<Record<number, boolean>>({ 0: true });
   const [showZoom, setShowZoom] = useState(false);
   const fallbackImage = getDefaultImage(640, 640, productName);
+
+  const selectImage = (index: number) => {
+    setCurrentImageIndex(index);
+    setImageLoading((previous) => ({ ...previous, [index]: true }));
+  };
 
   useEffect(() => {
     setCurrentImageIndex(0);
     setImageErrors({});
-    setImageLoading({ 0: false });
+    setImageLoading({ 0: true });
   }, [galleryImages]);
 
   useEffect(() => {
@@ -50,8 +55,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
     const nextIndex = colorIndexMap[selectedColor];
 
     if (nextIndex !== undefined && nextIndex < galleryImages.length) {
-      setCurrentImageIndex(nextIndex);
-      setImageLoading((previous) => ({ ...previous, [nextIndex]: false }));
+      selectImage(nextIndex);
     }
   }, [galleryImages.length, selectedAttributes]);
 
@@ -66,17 +70,17 @@ const ProductImages: React.FC<ProductImagesProps> = ({
       }
 
       if (event.key === 'ArrowLeft') {
-        setCurrentImageIndex((previous) => (previous > 0 ? previous - 1 : galleryImages.length - 1));
+        selectImage(currentImageIndex > 0 ? currentImageIndex - 1 : galleryImages.length - 1);
       }
 
       if (event.key === 'ArrowRight') {
-        setCurrentImageIndex((previous) => (previous < galleryImages.length - 1 ? previous + 1 : 0));
+        selectImage(currentImageIndex < galleryImages.length - 1 ? currentImageIndex + 1 : 0);
       }
     };
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [galleryImages.length, showZoom]);
+  }, [currentImageIndex, galleryImages.length, showZoom]);
 
   const currentImage = imageErrors[currentImageIndex]
     ? fallbackImage
@@ -85,19 +89,22 @@ const ProductImages: React.FC<ProductImagesProps> = ({
 
   return (
     <div className={styles.productImages}>
-      <div className={styles.mainImageContainer} onClick={() => setShowZoom(true)}>
-        {isLoading ? <div className={styles.imagePlaceholder}>Loading...</div> : null}
+      <div className={styles.mainImageContainer} onClick={() => setShowZoom(true)} role="button" tabIndex={0}>
+        {isLoading ? (
+          <div className={styles.imagePlaceholder}>
+            <div className="loading"></div>
+          </div>
+        ) : null}
 
         <img
           src={currentImage}
-          alt={`${productName} ${currentImageIndex + 1}`}
-          className={styles.mainImage}
+          alt={`${productName} 第 ${currentImageIndex + 1} 张图片`}
+          className={`${styles.mainImage} ${isLoading ? styles.hidden : ''}`}
           onLoad={() => setImageLoading((previous) => ({ ...previous, [currentImageIndex]: false }))}
           onError={() => {
             setImageErrors((previous) => ({ ...previous, [currentImageIndex]: true }));
             setImageLoading((previous) => ({ ...previous, [currentImageIndex]: false }));
           }}
-          style={{ display: isLoading ? 'none' : 'block' }}
         />
 
         {galleryImages.length > 1 ? (
@@ -106,10 +113,10 @@ const ProductImages: React.FC<ProductImagesProps> = ({
               className={`${styles.navigationButton} ${styles.prevButton}`}
               onClick={(event) => {
                 event.stopPropagation();
-                setCurrentImageIndex((previous) => (previous > 0 ? previous - 1 : galleryImages.length - 1));
+                selectImage(currentImageIndex > 0 ? currentImageIndex - 1 : galleryImages.length - 1);
               }}
               type="button"
-              aria-label="Previous image"
+              aria-label="上一张图片"
             >
               {'<'}
             </button>
@@ -117,10 +124,10 @@ const ProductImages: React.FC<ProductImagesProps> = ({
               className={`${styles.navigationButton} ${styles.nextButton}`}
               onClick={(event) => {
                 event.stopPropagation();
-                setCurrentImageIndex((previous) => (previous < galleryImages.length - 1 ? previous + 1 : 0));
+                selectImage(currentImageIndex < galleryImages.length - 1 ? currentImageIndex + 1 : 0);
               }}
               type="button"
-              aria-label="Next image"
+              aria-label="下一张图片"
             >
               {'>'}
             </button>
@@ -137,12 +144,12 @@ const ProductImages: React.FC<ProductImagesProps> = ({
             <button
               key={`${image}-${index}`}
               className={`${styles.thumbnail} ${index === currentImageIndex ? styles.active : ''}`}
-              onClick={() => setCurrentImageIndex(index)}
+              onClick={() => selectImage(index)}
               type="button"
             >
               <img
-                src={image}
-                alt={`${productName} thumbnail ${index + 1}`}
+                src={imageErrors[index] ? fallbackImage : image}
+                alt={`${productName} 缩略图 ${index + 1}`}
                 className={styles.thumbnailImage}
                 onError={() => setImageErrors((previous) => ({ ...previous, [index]: true }))}
               />
@@ -155,12 +162,12 @@ const ProductImages: React.FC<ProductImagesProps> = ({
         <div className={styles.zoomModal} onClick={() => setShowZoom(false)}>
           <img
             src={currentImage}
-            alt={`${productName} zoomed`}
+            alt={`${productName} 放大图`}
             className={styles.zoomedImage}
             onClick={(event) => event.stopPropagation()}
           />
           <button className={styles.closeButton} onClick={() => setShowZoom(false)} type="button">
-            x
+            ×
           </button>
         </div>
       ) : null}

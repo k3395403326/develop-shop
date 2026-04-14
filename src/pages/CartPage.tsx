@@ -5,6 +5,8 @@ import { useApp } from '../context/AppContext';
 import { useCart } from '../context/CartContext';
 import { getDefaultImage } from '../utils/imageUtils';
 
+const formatPrice = (price: number) => `¥${price.toLocaleString('zh-CN')}`;
+
 const CartPage: React.FC = () => {
   const { state } = useApp();
   const { cart, clearCart, removeFromCart, updateQuantity } = useCart();
@@ -28,9 +30,9 @@ const CartPage: React.FC = () => {
         <div className={cartStyles.emptyCart}>
           <div className={cartStyles.emptyIcon}>0</div>
           <h2 className={cartStyles.emptyTitle}>购物车还是空的</h2>
-          <p className={cartStyles.emptyDescription}>先去挑一些商品吧，加入后会显示在这里。</p>
+          <p className={cartStyles.emptyDescription}>先去挑几件最近热卖的商品吧，加购之后会显示在这里。</p>
           <Link to="/" className={cartStyles.shopNowButton}>
-            去逛逛
+            去逛热卖
           </Link>
         </div>
       </div>
@@ -42,7 +44,9 @@ const CartPage: React.FC = () => {
       <div className={cartStyles.header}>
         <div>
           <h1 className={cartStyles.title}>购物车</h1>
-          <p className={cartStyles.itemCount}>共 {entries.length} 种商品，{cart.totalItems} 件</p>
+          <p className={cartStyles.itemCount}>
+            共 {entries.length} 种商品，{cart.totalItems} 件
+          </p>
         </div>
       </div>
 
@@ -56,21 +60,30 @@ const CartPage: React.FC = () => {
                 gridTemplateColumns: '96px 1fr auto',
                 gap: '16px',
                 padding: '20px',
-                borderBottom: '1px solid #f1f5f9',
+                borderBottom: '1px solid #eef2f7',
                 alignItems: 'center',
               }}
             >
-              <img
-                src={product.images[0] ?? getDefaultImage(300, 300, product.name)}
-                alt={product.name}
+              <div
                 style={{
                   width: '96px',
                   height: '96px',
-                  objectFit: 'cover',
-                  borderRadius: '10px',
-                  background: '#f8fafc',
+                  padding: '10px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(180deg, #fff8f7 0%, #fff 100%)',
+                  border: '1px solid rgba(31,35,41,0.06)',
                 }}
-              />
+              >
+                <img
+                  src={product.images[0] ?? getDefaultImage(300, 300, product.name)}
+                  alt={product.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                  }}
+                />
+              </div>
 
               <div style={{ minWidth: 0 }}>
                 <h3 style={{ margin: '0 0 8px', fontSize: '16px', color: '#111827' }}>{product.name}</h3>
@@ -95,7 +108,7 @@ const CartPage: React.FC = () => {
                       ))}
                   </div>
                 ) : null}
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-secondary"
@@ -124,10 +137,10 @@ const CartPage: React.FC = () => {
 
               <div style={{ textAlign: 'right' }}>
                 <div style={{ color: '#e1251b', fontSize: '20px', fontWeight: 700 }}>
-                  ¥{(product.price * item.quantity).toLocaleString()}
+                  {formatPrice(product.price * item.quantity)}
                 </div>
                 <div style={{ color: '#94a3b8', fontSize: '12px', marginTop: '6px' }}>
-                  单价 ¥{product.price.toLocaleString()}
+                  单价 {formatPrice(product.price)}
                 </div>
               </div>
             </div>
@@ -142,20 +155,20 @@ const CartPage: React.FC = () => {
           </div>
           <div className={cartStyles.summaryRow}>
             <span className={cartStyles.summaryLabel}>商品原价</span>
-            <span className={cartStyles.summaryValue}>¥{totalOriginalPrice.toLocaleString()}</span>
+            <span className={cartStyles.summaryValue}>{formatPrice(totalOriginalPrice)}</span>
           </div>
           <div className={cartStyles.summaryRow}>
             <span className={cartStyles.summaryLabel}>已省金额</span>
-            <span className={cartStyles.summaryValue}>¥{(totalOriginalPrice - totalPrice).toLocaleString()}</span>
+            <span className={cartStyles.summaryValue}>{formatPrice(totalOriginalPrice - totalPrice)}</span>
           </div>
           <div className={cartStyles.totalRow}>
             <span className={cartStyles.totalLabel}>应付总额</span>
-            <span className={cartStyles.totalValue}>¥{totalPrice.toLocaleString()}</span>
+            <span className={cartStyles.totalValue}>{formatPrice(totalPrice)}</span>
           </div>
           <button
             type="button"
             className={cartStyles.checkoutButton}
-            onClick={() => window.alert('当前项目为演示站点，已保留购物车内容。')}
+            onClick={() => window.alert('当前项目为演示站点，购物车内容已成功保留。')}
           >
             去结算
           </button>

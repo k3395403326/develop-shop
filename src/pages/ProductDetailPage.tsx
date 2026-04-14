@@ -13,7 +13,9 @@ const ProductDetailPage: React.FC = () => {
     return (
       <div className={styles.productDetailPage}>
         <div className="container">
-          <div className="loading"></div>
+          <div className={styles.loadingWrapper}>
+            <div className="loading"></div>
+          </div>
         </div>
       </div>
     );
@@ -24,7 +26,7 @@ const ProductDetailPage: React.FC = () => {
       <div className={styles.notFound}>
         <div className={styles.notFoundContent}>
           <h2>商品不存在</h2>
-          <p>这个商品可能已经下架，或者链接地址不对。</p>
+          <p>这个商品可能已经下架，或者当前链接地址不正确。</p>
           <Link to="/" className="btn btn-primary">
             返回首页
           </Link>
