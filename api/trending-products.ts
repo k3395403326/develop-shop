@@ -1,7 +1,3 @@
-import { trendingProducts as fallbackProducts } from '../src/data/trendingProducts';
-import type { Product, ProductAttribute } from '../src/types';
-import { isRenderableProduct, normalizeProduct } from '../src/utils/dataGenerator';
-
 type VercelRequestLike = {
   method?: string;
 };
@@ -12,11 +8,42 @@ type VercelResponseLike = {
   json: (body: unknown) => void;
 };
 
+type AttributeOption = {
+  value: string;
+  label: string;
+};
+
+type ProductAttribute = {
+  name: string;
+  type: 'color' | 'size' | 'specification';
+  options: AttributeOption[];
+};
+
+type ApiProduct = {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  images: string[];
+  description: string;
+  category: string;
+  attributes: ProductAttribute[];
+  stock: number;
+  rating: number;
+  reviewCount: number;
+};
+
 type CategorySource = {
   key: string;
   category: string;
   url: string;
   maxItems: number;
+};
+
+type AnchorCandidate = {
+  itemId: string;
+  name: string;
+  htmlIndex: number;
 };
 
 type ScrapedRankingItem = {
@@ -26,14 +53,6 @@ type ScrapedRankingItem = {
   rank: number;
   reviewCount: number;
   image?: string;
-  itemUrl: string;
-};
-
-type AnchorCandidate = {
-  itemId: string;
-  name: string;
-  itemUrl: string;
-  htmlIndex: number;
 };
 
 const CATEGORY_SOURCES: CategorySource[] = [
@@ -75,13 +94,298 @@ const CATEGORY_SOURCES: CategorySource[] = [
   },
 ];
 
-const FETCH_TIMEOUT_MS = 5500;
+const FETCH_TIMEOUT_MS = 5000;
 const MINIMUM_LIVE_PRODUCTS = 12;
 
-const groupedFallbackProducts = CATEGORY_SOURCES.reduce<Record<string, Product[]>>((map, source) => {
-  map[source.category] = fallbackProducts.filter((product) => product.category === source.category);
-  return map;
-}, {});
+const colorOptions: AttributeOption[] = [
+  { value: 'black', label: '曜石黑' },
+  { value: 'white', label: '雪域白' },
+  { value: 'blue', label: '海湾蓝' },
+];
+
+const phoneStorage: AttributeOption[] = [
+  { value: '256gb', label: '256GB' },
+  { value: '512gb', label: '512GB' },
+  { value: '1tb', label: '1TB' },
+];
+
+const laptopConfigs: AttributeOption[] = [
+  { value: '16gb-1tb', label: '16GB + 1TB' },
+  { value: '32gb-1tb', label: '32GB + 1TB' },
+  { value: '32gb-2tb', label: '32GB + 2TB' },
+];
+
+const genericSpec: AttributeOption[] = [
+  { value: 'standard', label: '标准版' },
+  { value: 'popular', label: '热卖款' },
+];
+
+const fallbackCatalog: Record<string, ApiProduct[]> = {
+  手机数码: [
+    {
+      id: 'fallback-phone-1',
+      name: 'Apple iPhone 17 Pro Max 256GB',
+      price: 9999,
+      originalPrice: 10999,
+      images: [],
+      description: '苹果高端机型，热卖榜关注度稳定，适合高预算换新。',
+      category: '手机数码',
+      attributes: [
+        { name: '颜色', type: 'color', options: colorOptions },
+        { name: '存储', type: 'specification', options: phoneStorage },
+      ],
+      stock: 28,
+      rating: 4.8,
+      reviewCount: 2000000,
+    },
+    {
+      id: 'fallback-phone-2',
+      name: '华为 nova 15 256GB',
+      price: 3999,
+      originalPrice: 4399,
+      images: [],
+      description: '华为近期热卖机型，影像和系统体验均衡。',
+      category: '手机数码',
+      attributes: [
+        { name: '颜色', type: 'color', options: colorOptions },
+        { name: '存储', type: 'specification', options: phoneStorage },
+      ],
+      stock: 42,
+      rating: 4.8,
+      reviewCount: 680000,
+    },
+    {
+      id: 'fallback-phone-3',
+      name: '小米 15 Pro 512GB',
+      price: 5299,
+      originalPrice: 5799,
+      images: [],
+      description: '小米热卖旗舰，徕卡影像和性能表现兼顾。',
+      category: '手机数码',
+      attributes: [
+        { name: '颜色', type: 'color', options: colorOptions },
+        { name: '存储', type: 'specification', options: phoneStorage },
+      ],
+      stock: 36,
+      rating: 4.8,
+      reviewCount: 520000,
+    },
+  ],
+  电脑办公: [
+    {
+      id: 'fallback-laptop-1',
+      name: '机械革命 极光X RTX5060',
+      price: 7499,
+      originalPrice: 8099,
+      images: [],
+      description: '游戏本热卖款，适合高性能娱乐和重度办公。',
+      category: '电脑办公',
+      attributes: [
+        { name: '颜色', type: 'color', options: colorOptions },
+        { name: '配置', type: 'specification', options: laptopConfigs },
+      ],
+      stock: 19,
+      rating: 4.8,
+      reviewCount: 460000,
+    },
+    {
+      id: 'fallback-laptop-2',
+      name: '惠普 暗影精灵11 RTX5060',
+      price: 7999,
+      originalPrice: 8799,
+      images: [],
+      description: '品牌口碑稳定，适合游戏与创作双场景。',
+      category: '电脑办公',
+      attributes: [
+        { name: '颜色', type: 'color', options: colorOptions },
+        { name: '配置', type: 'specification', options: laptopConfigs },
+      ],
+      stock: 17,
+      rating: 4.7,
+      reviewCount: 210000,
+    },
+    {
+      id: 'fallback-laptop-3',
+      name: '联想 拯救者 R9000P',
+      price: 8999,
+      originalPrice: 9799,
+      images: [],
+      description: '高端性能本，屏幕和散热表现都很强。',
+      category: '电脑办公',
+      attributes: [
+        { name: '颜色', type: 'color', options: colorOptions },
+        { name: '配置', type: 'specification', options: laptopConfigs },
+      ],
+      stock: 15,
+      rating: 4.8,
+      reviewCount: 360000,
+    },
+  ],
+  家用电器: [
+    {
+      id: 'fallback-appliance-1',
+      name: '海尔 465L 十字门冰箱',
+      price: 3299,
+      originalPrice: 3799,
+      images: [],
+      description: '海尔冰箱热门型号，适合家庭换新。',
+      category: '家用电器',
+      attributes: [{ name: '方案', type: 'specification', options: genericSpec }],
+      stock: 20,
+      rating: 4.9,
+      reviewCount: 1000000,
+    },
+    {
+      id: 'fallback-appliance-2',
+      name: '小天鹅 洗烘一体机',
+      price: 2999,
+      originalPrice: 3499,
+      images: [],
+      description: '洗烘榜热卖机型，适合一步到位。',
+      category: '家用电器',
+      attributes: [{ name: '方案', type: 'specification', options: genericSpec }],
+      stock: 24,
+      rating: 4.8,
+      reviewCount: 720000,
+    },
+    {
+      id: 'fallback-appliance-3',
+      name: 'TCL 真省电 1.5匹空调',
+      price: 2399,
+      originalPrice: 2799,
+      images: [],
+      description: '换季热度很高的空调爆款，送装一体。',
+      category: '家用电器',
+      attributes: [{ name: '方案', type: 'specification', options: genericSpec }],
+      stock: 33,
+      rating: 4.8,
+      reviewCount: 530000,
+    },
+  ],
+  美妆护肤: [
+    {
+      id: 'fallback-beauty-1',
+      name: '兰蔻 小黑瓶精华 50ml',
+      price: 1080,
+      originalPrice: 1260,
+      images: [],
+      description: '精华榜头部单品，礼盒和自用都很热门。',
+      category: '美妆护肤',
+      attributes: [{ name: '规格', type: 'specification', options: genericSpec }],
+      stock: 58,
+      rating: 4.9,
+      reviewCount: 950000,
+    },
+    {
+      id: 'fallback-beauty-2',
+      name: '珀莱雅 红宝石面霜',
+      price: 339,
+      originalPrice: 399,
+      images: [],
+      description: '国货热卖面霜，回购率很高。',
+      category: '美妆护肤',
+      attributes: [{ name: '规格', type: 'specification', options: genericSpec }],
+      stock: 74,
+      rating: 4.9,
+      reviewCount: 1200000,
+    },
+    {
+      id: 'fallback-beauty-3',
+      name: '安热沙 小金瓶防晒 60ml',
+      price: 219,
+      originalPrice: 259,
+      images: [],
+      description: '防晒榜高热单品，春夏关注度持续走高。',
+      category: '美妆护肤',
+      attributes: [{ name: '规格', type: 'specification', options: genericSpec }],
+      stock: 88,
+      rating: 4.9,
+      reviewCount: 3000000,
+    },
+  ],
+  运动户外: [
+    {
+      id: 'fallback-sport-1',
+      name: '特步 两千公里五代 跑鞋',
+      price: 259,
+      originalPrice: 329,
+      images: [],
+      description: '近期跑鞋热卖榜冠军款，适合训练和通勤。',
+      category: '运动户外',
+      attributes: [{ name: '版本', type: 'specification', options: genericSpec }],
+      stock: 66,
+      rating: 4.8,
+      reviewCount: 520000,
+    },
+    {
+      id: 'fallback-sport-2',
+      name: '安踏 毒刺7代 跑鞋',
+      price: 299,
+      originalPrice: 359,
+      images: [],
+      description: '国产跑鞋热卖款，脚感轻快。',
+      category: '运动户外',
+      attributes: [{ name: '版本', type: 'specification', options: genericSpec }],
+      stock: 54,
+      rating: 4.8,
+      reviewCount: 260000,
+    },
+    {
+      id: 'fallback-sport-3',
+      name: '华为 WATCH FIT 4',
+      price: 999,
+      originalPrice: 1199,
+      images: [],
+      description: '运动手表热门款，健康监测与轻量佩戴兼顾。',
+      category: '运动户外',
+      attributes: [{ name: '版本', type: 'specification', options: genericSpec }],
+      stock: 29,
+      rating: 4.7,
+      reviewCount: 120000,
+    },
+  ],
+  汽车用品: [
+    {
+      id: 'fallback-car-1',
+      name: '70迈 A400 Pro 4K 行车记录仪',
+      price: 449,
+      originalPrice: 529,
+      images: [],
+      description: '记录仪榜头部商品，夜视和停车监控表现稳定。',
+      category: '汽车用品',
+      attributes: [{ name: '套餐', type: 'specification', options: genericSpec }],
+      stock: 80,
+      rating: 4.8,
+      reviewCount: 560000,
+    },
+    {
+      id: 'fallback-car-2',
+      name: '70迈 M310 Pro 3K 行车记录仪',
+      price: 279,
+      originalPrice: 329,
+      images: [],
+      description: '高性价比热门记录仪，适合大众装车。',
+      category: '汽车用品',
+      attributes: [{ name: '套餐', type: 'specification', options: genericSpec }],
+      stock: 92,
+      rating: 4.8,
+      reviewCount: 390000,
+    },
+    {
+      id: 'fallback-car-3',
+      name: '海康威视 N6+ 双录记录仪',
+      price: 699,
+      originalPrice: 799,
+      images: [],
+      description: '双录需求热门选择，品牌认知度高。',
+      category: '汽车用品',
+      attributes: [{ name: '套餐', type: 'specification', options: genericSpec }],
+      stock: 34,
+      rating: 4.7,
+      reviewCount: 180000,
+    },
+  ],
+};
 
 const ENTITY_MAP: Record<string, string> = {
   '&nbsp;': ' ',
@@ -92,19 +396,17 @@ const ENTITY_MAP: Record<string, string> = {
   '&#39;': "'",
 };
 
-const buildFallbackResponse = () => fallbackProducts.map(normalizeProduct).filter(isRenderableProduct);
+const decodeHtml = (value: string): string =>
+  value
+    .replace(/&(nbsp|amp|lt|gt|quot|#39);/g, (entity) => ENTITY_MAP[entity] ?? entity)
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)));
 
 const cleanText = (value: string): string =>
   decodeHtml(value)
     .replace(/<[^>]*>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-
-const decodeHtml = (value: string): string =>
-  value
-    .replace(/&(nbsp|amp|lt|gt|quot|#39);/g, (entity) => ENTITY_MAP[entity] ?? entity)
-    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
-    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)));
 
 const toPlainText = (html: string): string =>
   cleanText(
@@ -113,6 +415,22 @@ const toPlainText = (html: string): string =>
       .replace(/<style[\s\S]*?<\/style>/gi, ' ')
       .replace(/<noscript[\s\S]*?<\/noscript>/gi, ' '),
   );
+
+const normalizeImageUrl = (url?: string): string | undefined => {
+  if (!url) {
+    return undefined;
+  }
+
+  if (url.startsWith('//')) {
+    return `https:${url}`;
+  }
+
+  if (url.startsWith('http://')) {
+    return url.replace('http://', 'https://');
+  }
+
+  return url.startsWith('https://') ? url : undefined;
+};
 
 const parseChineseCount = (value: string): number => {
   const normalized = value.replace(/\+/g, '').trim();
@@ -133,87 +451,6 @@ const parseChineseCount = (value: string): number => {
   return Number.isFinite(numeric) ? Math.round(numeric) : 0;
 };
 
-const normalizeImageUrl = (url?: string): string | undefined => {
-  if (!url) {
-    return undefined;
-  }
-
-  if (url.startsWith('//')) {
-    return `https:${url}`;
-  }
-
-  if (url.startsWith('http://')) {
-    return url.replace('http://', 'https://');
-  }
-
-  return url.startsWith('https://') ? url : undefined;
-};
-
-const extractProductAnchors = (html: string): AnchorCandidate[] => {
-  const anchorRegex =
-    /<a[^>]+href=["']((?:https?:)?\/\/item\.jd\.com\/(\d+)\.html[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  const bySku = new Map<string, AnchorCandidate>();
-  const matches: AnchorCandidate[] = [];
-
-  for (const match of html.matchAll(anchorRegex)) {
-    const itemUrl = normalizeImageUrl(match[1]?.replace(/\/\/item\.jd\.com/i, '//item.jd.com')) ?? `https:${match[1]}`;
-    const itemId = match[2] ?? '';
-    const name = cleanText(match[3] ?? '');
-
-    if (!itemId || !name || name.length < 6) {
-      continue;
-    }
-
-    if (!/[\u4e00-\u9fa5A-Za-z]/.test(name)) {
-      continue;
-    }
-
-    if (/^(首页|排行|品牌|热卖商品|热门点评晒单|查看|更多|Image:)/.test(name)) {
-      continue;
-    }
-
-    const existing = bySku.get(itemId);
-    const nextCandidate: AnchorCandidate = {
-      itemId,
-      name,
-      itemUrl,
-      htmlIndex: match.index ?? 0,
-    };
-
-    if (!existing || existing.name.length < name.length) {
-      bySku.set(itemId, nextCandidate);
-    }
-  }
-
-  for (const candidate of bySku.values()) {
-    matches.push(candidate);
-  }
-
-  return matches.sort((left, right) => left.htmlIndex - right.htmlIndex);
-};
-
-const extractReviewCountNearIndex = (html: string, startIndex: number): number => {
-  const snippet = toPlainText(html.slice(startIndex, startIndex + 1800));
-  const match = snippet.match(/已有\s*([0-9.+万亿]+)\s*人评论/);
-
-  return match ? parseChineseCount(match[1]) : 0;
-};
-
-const extractImageNearIndex = (html: string, startIndex: number): string | undefined => {
-  const snippet = html.slice(startIndex, startIndex + 2200);
-  const imageRegex = /(?:data-lazy-img|data-img|src)=["']([^"']+)["']/gi;
-
-  for (const match of snippet.matchAll(imageRegex)) {
-    const normalized = normalizeImageUrl(match[1]);
-
-    if (normalized && /(?:360buyimg|img\d+\.jpg|img\d+\.png|jfs)/i.test(normalized) && !/lazyload|blank/i.test(normalized)) {
-      return normalized;
-    }
-  }
-
-  return undefined;
-};
-
 const canonicalizeProductName = (name: string, category: string): string => {
   let normalized = name
     .replace(/【[^】]*】/g, ' ')
@@ -225,23 +462,67 @@ const canonicalizeProductName = (name: string, category: string): string => {
     .replace(/\b\d+(?:\.\d+)?(?:ml|mL|L|匹|Hz|K|kg|寸)\b/gi, ' ')
     .replace(/\b(?:黑|白|灰|蓝|银|金|红|绿|紫)\b/g, ' ')
     .replace(/\b(?:男|女|儿童)\b/g, ' ')
-    .replace(/\b(?:3[5-9]|4[0-9])(?:\.\d)?\b/g, category === '运动户外' ? ' ' : '$&')
     .replace(/\s+/g, ' ')
     .trim();
 
   if (category === '运动户外') {
-    normalized = normalized.replace(/\b(?:跑步鞋|运动鞋)\b/g, '跑鞋').trim();
+    normalized = normalized.replace(/\b(?:3[5-9]|4[0-9])(?:\.\d)?\b/g, ' ').replace(/\s+/g, ' ').trim();
   }
 
   return normalized;
 };
 
-const chooseFallbackTemplate = (category: string, name: string, rank: number): Product => {
-  const templates = groupedFallbackProducts[category] ?? fallbackProducts;
-  const brandToken = name.split(/[ （(]/)[0]?.trim();
-  const matchedTemplate = templates.find((product) => brandToken && product.name.includes(brandToken));
+const extractProductAnchors = (html: string): AnchorCandidate[] => {
+  const anchorRegex =
+    /<a[^>]+href=["']((?:https?:)?\/\/item\.jd\.com\/(\d+)\.html[^"']*)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  const bySku = new Map<string, AnchorCandidate>();
 
-  return matchedTemplate ?? templates[(rank - 1) % templates.length] ?? fallbackProducts[0];
+  for (const match of html.matchAll(anchorRegex)) {
+    const itemId = match[2] ?? '';
+    const name = cleanText(match[3] ?? '');
+
+    if (!itemId || !name || name.length < 6 || !/[\u4e00-\u9fa5A-Za-z]/.test(name)) {
+      continue;
+    }
+
+    if (/^(首页|排行|品牌|热卖商品|热门点评晒单|查看|更多|Image:)/.test(name)) {
+      continue;
+    }
+
+    const existing = bySku.get(itemId);
+    const candidate: AnchorCandidate = {
+      itemId,
+      name,
+      htmlIndex: match.index ?? 0,
+    };
+
+    if (!existing || existing.name.length < name.length) {
+      bySku.set(itemId, candidate);
+    }
+  }
+
+  return [...bySku.values()].sort((left, right) => left.htmlIndex - right.htmlIndex);
+};
+
+const extractReviewCountNearIndex = (html: string, startIndex: number): number => {
+  const snippet = toPlainText(html.slice(startIndex, startIndex + 1800));
+  const match = snippet.match(/已有\s*([0-9.+万亿]+)\s*人评论/);
+  return match ? parseChineseCount(match[1]) : 0;
+};
+
+const extractImageNearIndex = (html: string, startIndex: number): string | undefined => {
+  const snippet = html.slice(startIndex, startIndex + 2200);
+  const imageRegex = /(?:data-lazy-img|data-img|src)=["']([^"']+)["']/gi;
+
+  for (const match of snippet.matchAll(imageRegex)) {
+    const normalized = normalizeImageUrl(match[1]);
+
+    if (normalized && /(?:360buyimg|jfs)/i.test(normalized) && !/blank|lazyload/i.test(normalized)) {
+      return normalized;
+    }
+  }
+
+  return undefined;
 };
 
 const inferPriceFromName = (category: string, name: string, fallbackPrice: number): number => {
@@ -260,14 +541,9 @@ const inferPriceFromName = (category: string, name: string, fallbackPrice: numbe
     else if (/(小米|vivo|OPPO|荣耀)/i.test(name)) basePrice = 3599;
     else if (/(REDMI|iQOO|真我|realme)/i.test(name)) basePrice = 2299;
 
-    if (storageMatch) {
-      if (storageMatch[1] === '512') basePrice += 700;
-      if (storageMatch[1] === '256') basePrice += 200;
-    }
-
-    if (has1Tb) {
-      basePrice += 1600;
-    }
+    if (storageMatch?.[1] === '256') basePrice += 200;
+    if (storageMatch?.[1] === '512') basePrice += 700;
+    if (has1Tb) basePrice += 1600;
 
     return basePrice;
   }
@@ -278,7 +554,6 @@ const inferPriceFromName = (category: string, name: string, fallbackPrice: numbe
     if (/5070/i.test(name)) return 9299;
     if (/5060/i.test(name)) return 7499;
     if (/4060/i.test(name)) return 6499;
-    if (/ThinkBook|轻薄/i.test(name)) return 5999;
     return fallbackPrice;
   }
 
@@ -299,8 +574,6 @@ const inferPriceFromName = (category: string, name: string, fallbackPrice: numbe
   }
 
   if (category === '美妆护肤') {
-    if (/LA MER|海蓝之谜/i.test(name)) return 1599;
-    if (/SK-II|神仙水/i.test(name)) return 1099;
     if (/兰蔻/i.test(name)) return 1080;
     if (/雅诗兰黛/i.test(name)) return 420;
     if (/防晒/i.test(name)) return 219;
@@ -308,8 +581,6 @@ const inferPriceFromName = (category: string, name: string, fallbackPrice: numbe
   }
 
   if (category === '运动户外') {
-    if (/耐克|NIKE/i.test(name)) return 499;
-    if (/阿迪|adidas/i.test(name)) return 459;
     if (/手表|WATCH/i.test(name)) return 999;
     if (/帐篷|天幕/i.test(name)) return 799;
     return fallbackPrice;
@@ -325,42 +596,15 @@ const inferPriceFromName = (category: string, name: string, fallbackPrice: numbe
   return fallbackPrice;
 };
 
-const buildAttributes = (template: Product, category: string, name: string): ProductAttribute[] => {
-  if (category === '手机数码') {
-    const storageOptions = ['128GB', '256GB', '512GB', '1TB']
-      .filter((option) => option === '256GB' || option === '512GB' || option === '1TB' || name.includes(option))
-      .map((label) => ({ value: label.toLowerCase(), label }));
-
-    return [
-      template.attributes.find((attribute) => attribute.name === '颜色') ?? {
-        name: '颜色',
-        type: 'color',
-        options: [
-          { value: 'black', label: '曜石黑' },
-          { value: 'white', label: '雪域白' },
-          { value: 'blue', label: '海湾蓝' },
-        ],
-      },
-      {
-        name: '存储',
-        type: 'specification',
-        options: storageOptions.length > 0 ? storageOptions : [{ value: '256gb', label: '256GB' }],
-      },
-    ];
-  }
-
-  return template.attributes;
+const inferRating = (reviewCount: number, rank: number): number => {
+  const reviewBonus = reviewCount >= 500000 ? 0.2 : reviewCount >= 100000 ? 0.12 : 0.04;
+  const rating = 4.45 + reviewBonus - rank * 0.03;
+  return Number(Math.max(4.4, Math.min(4.9, rating)).toFixed(1));
 };
 
 const inferStock = (itemId: string, rank: number): number => {
   const seed = Number(itemId.slice(-3)) || rank * 17;
   return Math.max(8, (seed % 88) + 8);
-};
-
-const inferRating = (reviewCount: number, rank: number): number => {
-  const reviewBonus = reviewCount >= 500000 ? 0.2 : reviewCount >= 100000 ? 0.12 : 0.04;
-  const rating = 4.45 + reviewBonus - rank * 0.03;
-  return Number(Math.max(4.4, Math.min(4.9, rating)).toFixed(1));
 };
 
 const buildDescription = (category: string, rank: number, name: string): string => {
@@ -376,47 +620,76 @@ const buildDescription = (category: string, rank: number, name: string): string 
   return `来自京东${category}排行榜的实时热卖商品，当前位列 TOP ${rank}，${categoryPitch[category] ?? '适合近期直接下单'}。${name}`;
 };
 
-const buildLiveProducts = (items: ScrapedRankingItem[]): Product[] => {
-  const products = items.map((item) => {
-    const template = chooseFallbackTemplate(item.category, item.name, item.rank);
-    const price = inferPriceFromName(item.category, item.name, template.price);
-    const images = [item.image, ...template.images].filter((value): value is string => Boolean(value));
-    const originalPrice =
-      template.originalPrice && template.originalPrice > price
-        ? template.originalPrice
-        : Math.round(price * 1.12);
+const buildAttributes = (category: string): ProductAttribute[] => {
+  if (category === '手机数码') {
+    return [
+      { name: '颜色', type: 'color', options: colorOptions },
+      { name: '存储', type: 'specification', options: phoneStorage },
+    ];
+  }
 
-    return normalizeProduct({
-      ...template,
-      id: `jd-${item.category}-${item.itemId}`,
-      name: item.name,
-      category: item.category,
-      description: buildDescription(item.category, item.rank, item.name),
-      price,
-      originalPrice,
-      images,
-      attributes: buildAttributes(template, item.category, item.name),
-      stock: inferStock(item.itemId, item.rank),
-      rating: inferRating(item.reviewCount, item.rank),
-      reviewCount: item.reviewCount > 0 ? item.reviewCount : template.reviewCount,
-    });
-  });
+  if (category === '电脑办公') {
+    return [
+      { name: '颜色', type: 'color', options: colorOptions },
+      { name: '配置', type: 'specification', options: laptopConfigs },
+    ];
+  }
 
+  if (category === '家用电器') {
+    return [{ name: '方案', type: 'specification', options: genericSpec }];
+  }
+
+  if (category === '美妆护肤') {
+    return [{ name: '规格', type: 'specification', options: genericSpec }];
+  }
+
+  if (category === '运动户外') {
+    return [{ name: '版本', type: 'specification', options: genericSpec }];
+  }
+
+  return [{ name: '套餐', type: 'specification', options: genericSpec }];
+};
+
+const buildFallbackResponse = (): ApiProduct[] =>
+  CATEGORY_SOURCES.flatMap((source) => fallbackCatalog[source.category] ?? []);
+
+const buildLiveProducts = (items: ScrapedRankingItem[]): ApiProduct[] => {
   const seen = new Set<string>();
 
-  return products.filter((product) => {
-    if (!isRenderableProduct(product)) {
-      return false;
-    }
+  return items
+    .map((item) => {
+      const templates = fallbackCatalog[item.category] ?? buildFallbackResponse();
+      const template = templates[(item.rank - 1) % templates.length] ?? templates[0];
+      const price = inferPriceFromName(item.category, item.name, template.price);
 
-    const key = `${product.category}:${canonicalizeProductName(product.name, product.category)}`;
-    if (seen.has(key)) {
-      return false;
-    }
+      return {
+        ...template,
+        id: `jd-${item.category}-${item.itemId}`,
+        name: item.name,
+        category: item.category,
+        description: buildDescription(item.category, item.rank, item.name),
+        price,
+        originalPrice: Math.round(price * 1.12),
+        images: item.image ? [item.image] : [],
+        attributes: buildAttributes(item.category),
+        stock: inferStock(item.itemId, item.rank),
+        rating: inferRating(item.reviewCount, item.rank),
+        reviewCount: item.reviewCount > 0 ? item.reviewCount : template.reviewCount,
+      };
+    })
+    .filter((product) => {
+      if (!product.id || !product.name || !product.category || !Number.isFinite(product.price) || product.price <= 0) {
+        return false;
+      }
 
-    seen.add(key);
-    return true;
-  });
+      const key = `${product.category}:${canonicalizeProductName(product.name, product.category)}`;
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
 };
 
 const fetchHtml = async (url: string): Promise<string> => {
@@ -446,11 +719,11 @@ const fetchHtml = async (url: string): Promise<string> => {
   }
 };
 
-const scrapeCategoryProducts = async (source: CategorySource): Promise<Product[]> => {
+const scrapeCategoryProducts = async (source: CategorySource): Promise<ApiProduct[]> => {
   const html = await fetchHtml(source.url);
   const anchors = extractProductAnchors(html);
-  const items: ScrapedRankingItem[] = [];
   const seenNames = new Set<string>();
+  const items: ScrapedRankingItem[] = [];
 
   for (const anchor of anchors) {
     const normalizedName = canonicalizeProductName(anchor.name, source.category);
@@ -460,7 +733,6 @@ const scrapeCategoryProducts = async (source: CategorySource): Promise<Product[]
     }
 
     seenNames.add(normalizedName);
-
     items.push({
       itemId: anchor.itemId,
       name: anchor.name,
@@ -468,7 +740,6 @@ const scrapeCategoryProducts = async (source: CategorySource): Promise<Product[]
       rank: items.length + 1,
       reviewCount: extractReviewCountNearIndex(html, anchor.htmlIndex),
       image: extractImageNearIndex(html, anchor.htmlIndex),
-      itemUrl: anchor.itemUrl,
     });
 
     if (items.length >= source.maxItems) {
