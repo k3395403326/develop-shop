@@ -4,7 +4,7 @@ import ProgressiveImage from '../components/common/ProgressiveImage';
 import cartStyles from '../components/cart/Cart.module.css';
 import { useApp } from '../context/AppContext';
 import { useCart } from '../context/CartContext';
-import { getDefaultImage, getPicsumImage } from '../utils/imageUtils';
+import { getDefaultImage, getPhotoFallbackUrl } from '../utils/imageUtils';
 
 const formatPrice = (price: number) => `¥${price.toLocaleString('zh-CN')}`;
 
@@ -71,7 +71,7 @@ const CartPage: React.FC = () => {
               <div className={cartStyles.itemImageShell}>
                 <ProgressiveImage
                   src={product.images[0] ?? getDefaultImage(300, 300, product.name)}
-                  secondaryFallbackSrc={getPicsumImage(600, 600, `cart-${product.id}-${product.name}`)}
+                  secondaryFallbackSrc={getPhotoFallbackUrl(720, 720, product.category, product.name, `cart-${product.id}`)}
                   fallbackSrc={getDefaultImage(300, 300, product.name)}
                   alt={product.name}
                   imageClassName={cartStyles.itemImage}

@@ -1,17 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import ProgressiveImage from '../common/ProgressiveImage';
-import { getDefaultImage, getPicsumImage } from '../../utils/imageUtils';
+import { getDefaultImage, getPhotoFallbackUrl } from '../../utils/imageUtils';
 import styles from './ProductImages.module.css';
 
 interface ProductImagesProps {
   images: string[];
   productName: string;
+  category?: string;
   selectedAttributes?: Record<string, string>;
 }
 
 const ProductImages: React.FC<ProductImagesProps> = ({
   images,
   productName,
+  category = '精选商品',
   selectedAttributes = {},
 }) => {
   const galleryImages = useMemo(() => {
@@ -23,7 +25,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showZoom, setShowZoom] = useState(false);
   const fallbackImage = getDefaultImage(640, 640, productName);
-  const secondaryFallbackImage = getPicsumImage(960, 960, `detail-${productName}`);
+  const secondaryFallbackImage = getPhotoFallbackUrl(960, 960, category, productName, `detail-${productName}`);
 
   const selectImage = (index: number) => {
     setCurrentImageIndex(index);

@@ -54,47 +54,6 @@ const hashString = (value: string): number => {
   return Math.abs(hash);
 };
 
-const escapeXml = (value: string): string =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-
-const toSvgDataUri = (svg: string): string => `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-
-const toUnsplashQuery = (category: string, name: string): string => {
-  const normalized = `${category} ${name}`.toLowerCase();
-  const kind = getProductKind(category, name);
-
-  // Prefer photo-real keywords to match premium e-commerce cards.
-  if (kind === 'phone') return /iphone|huawei|xiaomi|vivo|oppo|honor/.test(normalized) ? 'iphone,smartphone,product' : 'smartphone,product,studio';
-  if (kind === 'laptop') return /macbook/.test(normalized) ? 'macbook,laptop,product' : 'laptop,notebook,product,desk';
-  if (kind === 'appliance') return /空调/.test(normalized) ? 'air conditioner,home appliance,product' : 'home appliance,product,minimal';
-  if (kind === 'beauty') return 'skincare,cosmetics,bottle,product,studio';
-  if (kind === 'outdoor') return /鞋|跑鞋/.test(normalized) ? 'sneakers,shoes,product,studio' : 'outdoor,gear,product,studio';
-  return /记录仪/.test(normalized) ? 'dashcam,car gadget,product,studio' : 'car accessory,product,studio';
-};
-
-export const getUnsplashFeaturedImage = (
-  width: number,
-  height: number,
-  category: string,
-  name: string,
-  seed: string,
-): string => {
-  const query = toUnsplashQuery(category, name);
-  // `source.unsplash.com/featured` returns a photo; `sig` makes it stable-ish per product.
-  const sig = hashString(`${seed}-${category}-${name}`) % 9999;
-  return `https://source.unsplash.com/featured/${width}x${height}?${encodeURIComponent(query)}&sig=${sig}`;
-};
-
-export const getPicsumImage = (width: number, height: number, seed: string): string => {
-  const normalizedSeed = hashString(seed) % 2147483647;
-  return `https://picsum.photos/seed/${normalizedSeed}/${width}/${height}`;
-};
-
 const getProductKind = (category: string, name: string): ProductKind => {
   const normalized = `${category} ${name}`;
 
@@ -131,6 +90,42 @@ const getOutdoorKind = (name: string): OutdoorKind => {
   if (/(帐篷|露营|天幕|牧高笛)/i.test(name)) return 'tent';
   if (/(手表|WATCH|腕表)/i.test(name)) return 'watch';
   return 'shoe';
+};
+
+const escapeXml = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+
+const toSvgDataUri = (svg: string): string => `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+
+const sanitizeKeyword = (value: string): string =>
+  value
+    .replace(/https?:\/\/\S+/gi, '')
+    .replace(/[^\p{L}\p{N}\s+./-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+const buildPhotoQuery = (category: string, name: string, seed: string): string => {
+  const base = sanitizeKeyword(`${category} ${name}`);
+  const kind = getProductKind(category, name);
+  const studioHints =
+    kind === 'beauty'
+      ? 'cosmetics,skincare,product photography,studio,white background'
+      : 'product photography,studio,white background,ecommerce';
+
+  // Keep the query anchored to the actual product text to avoid random scenery mismatches.
+  const sig = hashString(`${seed}-${category}-${name}`) % 97;
+  return `${base},${studioHints},sig${sig}`;
+};
+
+export const getPhotoFallbackUrl = (width: number, height: number, category: string, name: string, seed: string): string => {
+  const query = buildPhotoQuery(category, name, seed);
+  const sig = hashString(`${seed}-${category}-${name}`) % 9999;
+  return `https://source.unsplash.com/featured/${width}x${height}?${encodeURIComponent(query)}&sig=${sig}`;
 };
 
 const getPalette = (category: string, name: string, variant: number): Palette => {
@@ -406,7 +401,7 @@ export const generateProductImages = (
   // Prefer photo-real images on card/detail pages, fallback stays available via getDefaultImage.
   const base = hashString(productId) % 4;
   return Array.from({ length: count }, (_, index) =>
-    getUnsplashFeaturedImage(960, 960, category, name, `${productId}-${base + index}`),
+    getPhotoFallbackUrl(960, 960, category, name, `${productId}-${base + index}`),
   );
 };
 

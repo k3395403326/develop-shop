@@ -3,7 +3,7 @@
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: 18px;
-  padding: 0 0 18px;
+  padding: 6px 0 18px;
 }
 
 .channelBadge {

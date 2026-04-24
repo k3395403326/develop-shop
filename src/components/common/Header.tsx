@@ -36,22 +36,26 @@ const Header: React.FC = () => {
 
           <div className={styles.searchArea}>
             <SearchBar />
-            <div className={styles.hotKeywords}>
-              {hotKeywords.map((keyword) => (
-                <span key={keyword} className={styles.keyword}>
-                  {keyword}
-                </span>
-              ))}
-            </div>
           </div>
 
           <div className={styles.userArea}>
-            <div className={styles.serviceCard}>
-              <span className={styles.serviceTag}>自营热卖</span>
-              <span className={styles.serviceTag}>现货速发</span>
-              <span className={styles.serviceTag}>7 天无忧</span>
-            </div>
             <CartIcon />
+          </div>
+        </div>
+
+        <div className={styles.metaRow}>
+          <div className={styles.serviceStrip} aria-label="服务承诺">
+            <span className={styles.servicePill}>自营热卖</span>
+            <span className={styles.servicePill}>现货速发</span>
+            <span className={styles.servicePill}>7 天无忧</span>
+          </div>
+
+          <div className={styles.hotKeywords} role="list">
+            {hotKeywords.map((keyword) => (
+              <span key={keyword} className={styles.keyword} role="listitem">
+                {keyword}
+              </span>
+            ))}
           </div>
         </div>
 

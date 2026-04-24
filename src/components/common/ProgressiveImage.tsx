@@ -44,14 +44,14 @@ const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
         onError={(event) => {
           onError?.(event);
 
-          if (fallbackStep === 0 && secondaryFallbackSrc) {
+          if (fallbackStep === 0 && secondaryFallbackSrc && currentSrc !== secondaryFallbackSrc) {
             setCurrentSrc(secondaryFallbackSrc);
             setFallbackStep(1);
             setIsLoading(true);
             return;
           }
 
-          if (fallbackStep < 2) {
+          if (fallbackStep < 2 && currentSrc !== fallbackSrc) {
             setCurrentSrc(fallbackSrc);
             setFallbackStep(2);
             setIsLoading(true);

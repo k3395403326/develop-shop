@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 34px;
+  min-height: 36px;
   font-size: 12px;
   color: var(--jd-muted);
 }
@@ -36,12 +36,12 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 28px;
-  padding: 18px 0 14px;
+  gap: 22px;
+  padding: 18px 0 12px;
 }
 
 .logoArea {
-  min-width: 218px;
+  min-width: 200px;
 }
 
 .logoLink {
@@ -54,12 +54,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 54px;
-  height: 54px;
+  width: 50px;
+  height: 50px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, #ff695c 0%, var(--color-primary) 100%);
   color: #fff;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   box-shadow: var(--shadow-primary);
 }
@@ -71,7 +71,7 @@
 }
 
 .logoText {
-  font-size: 32px;
+  font-size: 30px;
   line-height: 1;
   font-weight: 800;
   color: var(--jd-red);
@@ -88,42 +88,30 @@
   min-width: 0;
 }
 
-.hotKeywords {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 10px 6px 0;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
-.keyword {
-  font-size: 12px;
-  color: #8c8c8c;
-}
-
-.keyword:first-child {
-  color: var(--jd-red);
-  font-weight: 700;
-}
-
 .userArea {
   display: flex;
   align-items: center;
   gap: 14px;
+  justify-content: flex-end;
 }
 
-.serviceCard {
+.metaRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--radius-lg);
-  background: var(--glass-strong-bg);
-  border: 1px solid rgba(225, 37, 27, 0.1);
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0 14px;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-.serviceTag {
+.serviceStrip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.servicePill {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -133,6 +121,26 @@
   background: rgba(225, 37, 27, 0.08);
   color: var(--jd-red-dark);
   font-size: 12px;
+  font-weight: 700;
+}
+
+.hotKeywords {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  max-width: min(860px, 100%);
+}
+
+.keyword {
+  font-size: 12px;
+  color: #8c8c8c;
+  white-space: nowrap;
+}
+
+.keyword:first-child {
+  color: var(--jd-red);
   font-weight: 700;
 }
 
@@ -149,6 +157,17 @@
 
   .searchArea {
     width: 100%;
+  }
+
+  .metaRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .hotKeywords {
+    justify-content: flex-start;
+    max-width: none;
   }
 }
 
@@ -168,11 +187,6 @@
   }
 
   .hotKeywords {
-    gap: 12px;
-    padding-top: 8px;
-  }
-
-  .serviceCard {
-    display: none;
+    gap: 10px 12px;
   }
 }

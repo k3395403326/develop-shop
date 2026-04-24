@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import ProgressiveImage from '../components/common/ProgressiveImage';
 import ProductList from '../components/product/ProductList';
 import { useApp, useFilteredProducts } from '../context/AppContext';
-import { getDefaultImage, getPicsumImage } from '../utils/imageUtils';
+import { getDefaultImage, getPhotoFallbackUrl } from '../utils/imageUtils';
 import styles from './HomePage.module.css';
 
 const keywordTags = ['国家补贴', '爆款直降', '热榜更新', '现货优先'];
@@ -244,7 +244,13 @@ const HomePage: React.FC = () => {
                     <div className={styles.spotlightImageGlow}></div>
                     <ProgressiveImage
                       src={leadProduct.images[0]}
-                      secondaryFallbackSrc={getPicsumImage(960, 960, `spotlight-${leadProduct.id}-${leadProduct.name}`)}
+                      secondaryFallbackSrc={getPhotoFallbackUrl(
+                        960,
+                        960,
+                        leadProduct.category,
+                        leadProduct.name,
+                        `spotlight-${leadProduct.id}`,
+                      )}
                       fallbackSrc={getDefaultImage(720, 720, leadProduct.name)}
                       alt={leadProduct.name}
                       imageClassName={styles.spotlightImage}
@@ -314,7 +320,7 @@ const HomePage: React.FC = () => {
                     <div className={styles.rankThumbWrap}>
                       <ProgressiveImage
                         src={product.images[0]}
-                        secondaryFallbackSrc={getPicsumImage(360, 360, `rank-${product.id}-${product.name}`)}
+                        secondaryFallbackSrc={getPhotoFallbackUrl(720, 720, product.category, product.name, `rank-${product.id}`)}
                         fallbackSrc={getDefaultImage(180, 180, product.name)}
                         alt={product.name}
                         imageClassName={styles.rankThumb}
@@ -361,7 +367,7 @@ const HomePage: React.FC = () => {
                 <div className={styles.flashImageShell}>
                   <ProgressiveImage
                     src={product.images[0]}
-                    secondaryFallbackSrc={getPicsumImage(720, 720, `deal-${product.id}-${product.name}`)}
+                    secondaryFallbackSrc={getPhotoFallbackUrl(960, 960, product.category, product.name, `deal-${product.id}`)}
                     fallbackSrc={getDefaultImage(360, 360, product.name)}
                     alt={product.name}
                     imageClassName={styles.flashImage}
@@ -410,7 +416,13 @@ const HomePage: React.FC = () => {
                     <span className={styles.channelImageShell}>
                       <ProgressiveImage
                         src={item.sample.images[0]}
-                        secondaryFallbackSrc={getPicsumImage(360, 360, `channel-${item.sample.id}-${item.sample.name}`)}
+                        secondaryFallbackSrc={getPhotoFallbackUrl(
+                          720,
+                          720,
+                          item.sample.category,
+                          item.sample.name,
+                          `channel-${item.sample.id}`,
+                        )}
                         fallbackSrc={getDefaultImage(160, 160, item.sample.name)}
                         alt={item.sample.name}
                         imageClassName={styles.channelImage}

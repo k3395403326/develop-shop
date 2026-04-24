@@ -93,7 +93,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
       <section className={styles.mainContent}>
         <div className={styles.imageSection}>
-          <ProductImages images={product.images} productName={product.name} selectedAttributes={selectedAttributes} />
+          <ProductImages
+            images={product.images}
+            productName={product.name}
+            category={product.category}
+            selectedAttributes={selectedAttributes}
+          />
         </div>
 
         <div className={styles.infoSection}>
