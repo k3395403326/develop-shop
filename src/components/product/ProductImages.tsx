@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import ProgressiveImage from '../common/ProgressiveImage';
 import { getDefaultImage } from '../../utils/imageUtils';
 import styles from './ProductImages.module.css';
 
@@ -20,20 +21,15 @@ const ProductImages: React.FC<ProductImagesProps> = ({
   }, [images, productName]);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
-  const [imageLoading, setImageLoading] = useState<Record<number, boolean>>({ 0: true });
   const [showZoom, setShowZoom] = useState(false);
   const fallbackImage = getDefaultImage(640, 640, productName);
 
   const selectImage = (index: number) => {
     setCurrentImageIndex(index);
-    setImageLoading((previous) => ({ ...previous, [index]: true }));
   };
 
   useEffect(() => {
     setCurrentImageIndex(0);
-    setImageErrors({});
-    setImageLoading({ 0: true });
   }, [galleryImages]);
 
   useEffect(() => {
@@ -82,29 +78,28 @@ const ProductImages: React.FC<ProductImagesProps> = ({
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [currentImageIndex, galleryImages.length, showZoom]);
 
-  const currentImage = imageErrors[currentImageIndex]
-    ? fallbackImage
-    : galleryImages[currentImageIndex] ?? fallbackImage;
-  const isLoading = imageLoading[currentImageIndex] ?? false;
+  const currentImage = galleryImages[currentImageIndex] ?? fallbackImage;
 
   return (
     <div className={styles.productImages}>
-      <div className={styles.mainImageContainer} onClick={() => setShowZoom(true)} role="button" tabIndex={0}>
-        {isLoading ? (
-          <div className={styles.imagePlaceholder}>
-            <div className="loading"></div>
-          </div>
-        ) : null}
-
-        <img
+      <div
+        className={styles.mainImageContainer}
+        onClick={() => setShowZoom(true)}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            setShowZoom(true);
+          }
+        }}
+        role="button"
+        tabIndex={0}
+      >
+        <ProgressiveImage
           src={currentImage}
+          fallbackSrc={fallbackImage}
           alt={`${productName} 第 ${currentImageIndex + 1} 张图片`}
-          className={`${styles.mainImage} ${isLoading ? styles.hidden : ''}`}
-          onLoad={() => setImageLoading((previous) => ({ ...previous, [currentImageIndex]: false }))}
-          onError={() => {
-            setImageErrors((previous) => ({ ...previous, [currentImageIndex]: true }));
-            setImageLoading((previous) => ({ ...previous, [currentImageIndex]: false }));
-          }}
+          imageClassName={styles.mainImage}
+          placeholderClassName={styles.imagePlaceholder}
+          decoding="async"
         />
 
         {galleryImages.length > 1 ? (
@@ -147,11 +142,13 @@ const ProductImages: React.FC<ProductImagesProps> = ({
               onClick={() => selectImage(index)}
               type="button"
             >
-              <img
-                src={imageErrors[index] ? fallbackImage : image}
+              <ProgressiveImage
+                src={image}
+                fallbackSrc={fallbackImage}
                 alt={`${productName} 缩略图 ${index + 1}`}
-                className={styles.thumbnailImage}
-                onError={() => setImageErrors((previous) => ({ ...previous, [index]: true }))}
+                imageClassName={styles.thumbnailImage}
+                loading="lazy"
+                decoding="async"
               />
             </button>
           ))}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { Product } from '../../types';
@@ -15,6 +15,7 @@ const formatPrice = (price: number) => `¥${price.toLocaleString('zh-CN')}`;
 const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
   const [selectedAttributes, setSelectedAttributes] = useState<Record<string, string>>({});
   const { addToCart } = useCart();
 
@@ -50,11 +51,12 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
   const handleAddToCart = () => {
     if (!canPurchase) {
+      setFeedbackMessage(product.stock > 0 ? '请选择完整规格后再加入购物车。' : '当前商品暂时缺货。');
       return;
     }
 
     addToCart(product.id, selectedAttributes, quantity);
-    window.alert('已加入购物车。');
+    setFeedbackMessage('已加入购物车，商品会在购物车中保留。');
   };
 
   const handleBuyNow = () => {
@@ -68,8 +70,17 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
 
   const starText = `${'★'.repeat(Math.round(product.rating))}${'☆'.repeat(Math.max(0, 5 - Math.round(product.rating)))}`;
 
+  useEffect(() => {
+    if (!feedbackMessage) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setFeedbackMessage(''), 2400);
+    return () => window.clearTimeout(timer);
+  }, [feedbackMessage]);
+
   return (
-    <div className={styles.productDetail}>
+    <article className={styles.productDetail}>
       <nav className={styles.breadcrumb}>
         <Link to="/" className={styles.breadcrumbLink}>
           首页
@@ -80,7 +91,7 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
         <span>{product.name}</span>
       </nav>
 
-      <div className={styles.mainContent}>
+      <section className={styles.mainContent}>
         <div className={styles.imageSection}>
           <ProductImages images={product.images} productName={product.name} selectedAttributes={selectedAttributes} />
         </div>
@@ -200,18 +211,24 @@ const ProductDetail: React.FC<ProductDetailProps> = ({ product }) => {
           {product.stock > 0 && product.stock < 10 ? (
             <div className={styles.stockWarning}>库存紧张，仅剩 {product.stock} 件。</div>
           ) : null}
-        </div>
-      </div>
 
-      <div className={styles.description}>
+          {feedbackMessage ? (
+            <div className={styles.feedback} role="status">
+              {feedbackMessage}
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.description}>
         <h2 className={styles.descriptionTitle}>商品详情</h2>
         <div className={styles.descriptionContent}>
           <p>{product.description}</p>
           <p>{product.name} 适合日常使用、送礼或换新场景，当前页面已经统一成更偏京东风格的商品详情布局。</p>
           <p>支持选择规格、调整数量、加入购物车和直接下单，桌面端和移动端都可以正常浏览。</p>
         </div>
-      </div>
-    </div>
+      </section>
+    </article>
   );
 };
 

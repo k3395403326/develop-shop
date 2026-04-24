@@ -1,5 +1,6 @@
-import React, { useId, useState } from 'react';
+import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
+import ProgressiveImage from '../common/ProgressiveImage';
 import { Product } from '../../types';
 import { getDefaultImage } from '../../utils/imageUtils';
 import styles from './ProductCard.module.css';
@@ -9,10 +10,9 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const fallbackImage = getDefaultImage(300, 300, product.name);
   const primaryImage =
-    product.images.find((image) => image.trim().length > 0) ?? getDefaultImage(300, 300, product.name);
-  const [imageError, setImageError] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
+    product.images.find((image) => image.trim().length > 0) ?? fallbackImage;
   const gradientId = useId().replace(/:/g, '-');
   const saveAmount = (product.originalPrice ?? product.price) - product.price;
 
@@ -65,22 +65,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <Link to={`/product/${product.id}`} className={styles.productLink}>
         <div className={styles.imageContainer}>
           <div className={styles.imageStage}>
-            {imageLoading ? (
-              <div className={styles.imagePlaceholder}>
-                <div className="loading"></div>
-              </div>
-            ) : null}
-
-            <img
-              src={imageError ? getDefaultImage(300, 300, product.name) : primaryImage}
+            <ProgressiveImage
+              src={primaryImage}
+              fallbackSrc={fallbackImage}
               alt={product.name}
-              className={`${styles.productImage} ${imageLoading ? styles.hidden : ''}`}
-              onError={() => {
-                setImageError(true);
-                setImageLoading(false);
-              }}
-              onLoad={() => setImageLoading(false)}
+              imageClassName={styles.productImage}
+              placeholderClassName={styles.imagePlaceholder}
               loading="lazy"
+              decoding="async"
             />
           </div>
 

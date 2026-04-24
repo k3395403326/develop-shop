@@ -54,7 +54,14 @@ const SearchBar: React.FC = () => {
 
   return (
     <div className={styles.searchContainer} ref={containerRef}>
-      <div className={styles.searchBox}>
+      <form
+        className={styles.searchBox}
+        role="search"
+        onSubmit={(event) => {
+          event.preventDefault();
+          handleSearch();
+        }}
+      >
         <input
           type="text"
           value={inputValue}
@@ -63,7 +70,6 @@ const SearchBar: React.FC = () => {
             setShowSuggestions(event.target.value.trim().length > 0);
           }}
           onKeyDown={(event) => {
-            if (event.key === 'Enter') handleSearch();
             if (event.key === 'Escape') setShowSuggestions(false);
           }}
           onFocus={() => setShowSuggestions(inputValue.trim().length > 0)}
@@ -71,7 +77,7 @@ const SearchBar: React.FC = () => {
           className={styles.searchInput}
         />
 
-        <button onClick={() => handleSearch()} className={styles.searchButton} type="button" aria-label="搜索商品">
+        <button className={styles.searchButton} type="submit" aria-label="搜索商品">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path
               d="M21 21L16.514 16.506M19 10.5C19 15.194 15.194 19 10.5 19S2 15.194 2 10.5 5.806 2 10.5 2 19 5.806 19 10.5Z"
@@ -83,7 +89,7 @@ const SearchBar: React.FC = () => {
           </svg>
           <span className={styles.searchButtonText}>搜索</span>
         </button>
-      </div>
+      </form>
 
       {showSuggestions && suggestions.length > 0 ? (
         <div className={styles.suggestions}>

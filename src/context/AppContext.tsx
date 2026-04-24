@@ -3,6 +3,8 @@ import { AppAction, AppContextType, AppState, Product } from '../types';
 import { getCategories, isRenderableProduct } from '../utils/dataGenerator';
 import { fetchTrendingProducts, getFallbackTrendingProducts } from '../services/trendingProductsService';
 
+const PRODUCT_REFRESH_INTERVAL_MS = 30000;
+
 const initialState: AppState = {
   products: [],
   categories: [],
@@ -11,7 +13,21 @@ const initialState: AppState = {
   sortBy: 'rating',
   sortOrder: 'desc',
   isLoading: true,
+  isRefreshing: false,
+  lastUpdatedAt: null,
+  refreshError: null,
   error: null,
+};
+
+const mergeProductsById = (currentProducts: Product[], incomingProducts: Product[]): Product[] => {
+  const incomingById = new Map(incomingProducts.filter(isRenderableProduct).map((product) => [product.id, product]));
+  const seenIds = new Set(currentProducts.map((product) => product.id));
+
+  // Keep existing product positions stable so active category/search views do not jump during refresh.
+  const updatedProducts = currentProducts.map((product) => incomingById.get(product.id) ?? product);
+  const newProducts = incomingProducts.filter((product) => isRenderableProduct(product) && !seenIds.has(product.id));
+
+  return [...updatedProducts, ...newProducts];
 };
 
 const appReducer = (state: AppState, action: AppAction): AppState => {
@@ -20,9 +36,26 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       return {
         ...state,
         products: action.payload,
+        categories: getCategories(action.payload),
         isLoading: false,
+        isRefreshing: false,
+        lastUpdatedAt: Date.now(),
+        refreshError: null,
         error: null,
       };
+    case 'MERGE_PRODUCTS': {
+      const products = mergeProductsById(state.products, action.payload);
+
+      return {
+        ...state,
+        products,
+        categories: getCategories(products),
+        isRefreshing: false,
+        lastUpdatedAt: Date.now(),
+        refreshError: null,
+        error: null,
+      };
+    }
     case 'SET_CATEGORIES':
       return { ...state, categories: action.payload };
     case 'SET_SEARCH_QUERY':
@@ -37,8 +70,12 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       };
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
+    case 'SET_REFRESHING':
+      return { ...state, isRefreshing: action.payload };
+    case 'SET_REFRESH_ERROR':
+      return { ...state, refreshError: action.payload, isRefreshing: false };
     case 'SET_ERROR':
-      return { ...state, error: action.payload, isLoading: false };
+      return { ...state, error: action.payload, isLoading: false, isRefreshing: false };
     default:
       return state;
   }
@@ -68,12 +105,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
 
         products = products.filter(isRenderableProduct);
-        const categories = getCategories(products);
-
         await new Promise((resolve) => setTimeout(resolve, 240));
 
         dispatch({ type: 'SET_PRODUCTS', payload: products });
-        dispatch({ type: 'SET_CATEGORIES', payload: categories });
       } catch (error) {
         console.error('Failed to initialize products', error);
         dispatch({ type: 'SET_ERROR', payload: '商品数据加载失败，请刷新页面后重试。' });
@@ -81,6 +115,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     initializeData();
+  }, []);
+
+  useEffect(() => {
+    let isDisposed = false;
+    let refreshInFlight = false;
+
+    const refreshProducts = async () => {
+      if (refreshInFlight || document.visibilityState === 'hidden') {
+        return;
+      }
+
+      refreshInFlight = true;
+      dispatch({ type: 'SET_REFRESHING', payload: true });
+
+      try {
+        const products = (await fetchTrendingProducts()).filter(isRenderableProduct);
+
+        if (!isDisposed && products.length > 0) {
+          dispatch({ type: 'MERGE_PRODUCTS', payload: products });
+        }
+      } catch (error) {
+        console.warn('Failed to refresh trending products', error);
+
+        if (!isDisposed) {
+          dispatch({ type: 'SET_REFRESH_ERROR', payload: '热卖榜更新暂时失败，已保留当前商品。' });
+        }
+      } finally {
+        refreshInFlight = false;
+
+        if (!isDisposed) {
+          dispatch({ type: 'SET_REFRESHING', payload: false });
+        }
+      }
+    };
+
+    const intervalId = window.setInterval(refreshProducts, PRODUCT_REFRESH_INTERVAL_MS);
+    return () => {
+      isDisposed = true;
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;

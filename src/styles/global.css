@@ -5,16 +5,51 @@
 }
 
 :root {
-  --jd-red: #e1251b;
-  --jd-red-dark: #c81623;
-  --jd-orange: #ff8a00;
-  --jd-text: #1f1f1f;
-  --jd-muted: #666;
-  --jd-soft: #999;
-  --jd-line: #ebeef5;
-  --jd-card: #ffffff;
-  --jd-surface: #f7f8fa;
-  --jd-page-bg: linear-gradient(180deg, #f4f6f8 0, #f8f9fb 260px, #f4f6f8 100%);
+  --color-primary: #e1251b;
+  --color-primary-dark: #b91c1c;
+  --color-primary-soft: rgba(225, 37, 27, 0.1);
+  --color-accent: #0f766e;
+  --color-accent-soft: rgba(15, 118, 110, 0.1);
+  --color-warning: #f97316;
+  --color-text: #172033;
+  --color-muted: #64748b;
+  --color-soft: #94a3b8;
+  --color-border: #e6edf5;
+  --color-card: #ffffff;
+  --color-surface: #f7f9fc;
+  --color-page-bg:
+    radial-gradient(circle at 18% 12%, rgba(255, 90, 71, 0.1), transparent 42%),
+    radial-gradient(circle at 82% 16%, rgba(15, 118, 110, 0.1), transparent 44%),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.92), transparent 60%),
+    linear-gradient(180deg, #f3f6fb 0, #fbfcff 340px, #f2f6fb 100%);
+  --glass-bg: rgba(255, 255, 255, 0.74);
+  --glass-strong-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.66);
+  --glass-blur: blur(22px) saturate(150%);
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  --shadow-soft:
+    0 18px 46px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  --shadow-hover:
+    0 22px 54px rgba(15, 23, 42, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  --shadow-primary: 0 18px 34px rgba(225, 37, 27, 0.18);
+  --motion-fast: 160ms ease;
+  --motion-medium: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --jd-red: var(--color-primary);
+  --jd-red-dark: var(--color-primary-dark);
+  --jd-orange: var(--color-warning);
+  --jd-text: var(--color-text);
+  --jd-muted: var(--color-muted);
+  --jd-soft: var(--color-soft);
+  --jd-line: var(--color-border);
+  --jd-card: var(--color-card);
+  --jd-surface: var(--color-surface);
+  --jd-page-bg: var(--color-page-bg);
   color: var(--jd-text);
   background: var(--jd-page-bg);
   font-family:
@@ -78,6 +113,13 @@ select {
   outline: none;
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(225, 37, 27, 0.22);
+  outline-offset: 3px;
+}
+
 img,
 svg {
   display: block;
@@ -101,7 +143,7 @@ main {
 }
 
 .container {
-  width: min(1190px, calc(100% - 28px));
+  width: min(1360px, calc(100% - 48px));
   margin: 0 auto;
 }
 
@@ -118,12 +160,12 @@ main {
   font-weight: 600;
   line-height: 1;
   transition:
-    transform 0.18s ease,
-    background-color 0.18s ease,
-    color 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    opacity 0.18s ease;
+    transform var(--motion-fast),
+    background-color var(--motion-fast),
+    color var(--motion-fast),
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast),
+    opacity var(--motion-fast);
 }
 
 .btn:hover:not(:disabled) {
@@ -138,9 +180,9 @@ main {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #ff5247 0%, var(--jd-red) 100%);
+  background: linear-gradient(135deg, #ff695c 0%, var(--color-primary) 100%);
   color: #fff;
-  box-shadow: 0 12px 24px rgba(225, 37, 27, 0.16);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -148,9 +190,9 @@ main {
 }
 
 .btn-secondary {
-  background: #fff;
+  background: var(--glass-strong-bg);
   color: var(--jd-text);
-  border-color: #dfe3eb;
+  border-color: var(--color-border);
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -178,15 +220,50 @@ main {
   animation: spin 0.8s linear infinite;
 }
 
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(135deg, rgba(226, 232, 240, 0.66), rgba(248, 250, 252, 0.92));
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.72) 45%, transparent 82%);
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.25s ease-in-out infinite;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
+@keyframes skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
-    width: min(1190px, calc(100% - 20px));
+    width: min(1280px, calc(100% - 20px));
   }
 
   main {

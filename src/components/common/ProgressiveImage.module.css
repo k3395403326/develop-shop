@@ -1,0 +1,42 @@
+.wrapper {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity var(--motion-fast),
+    transform var(--motion-medium);
+}
+
+.visible {
+  opacity: 1;
+}
+
+.hidden {
+  opacity: 0;
+}
+
+.placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0) 46%),
+    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.72) 45%, transparent 82%),
+    linear-gradient(135deg, rgba(226, 232, 240, 0.66), rgba(248, 250, 252, 0.92));
+  background-size: 220% 100%, 100% 100%;
+  animation: shimmer 1.25s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -220% 0, 0 0;
+  }
+}

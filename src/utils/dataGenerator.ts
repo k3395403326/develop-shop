@@ -147,7 +147,7 @@ export const normalizeProduct = (product: Product): Product => {
   const safeOriginalPrice =
     product.originalPrice && product.originalPrice > safePrice ? Math.round(product.originalPrice) : undefined;
   const safeDescription = product.description?.trim() || buildDescription(safeName, safeCategory);
-  const safeImages = product.images.filter((image) => image && image.trim().length > 0);
+  const curatedImages = generateProductImages(product.id || safeName, safeCategory, safeName, 4);
 
   return {
     ...product,
@@ -156,8 +156,7 @@ export const normalizeProduct = (product: Product): Product => {
     price: safePrice,
     originalPrice: safeOriginalPrice,
     description: safeDescription,
-    images:
-      safeImages.length > 0 ? safeImages : generateProductImages(product.id || safeName, safeCategory, safeName),
+    images: curatedImages,
     attributes:
       product.attributes.length > 0
         ? product.attributes.filter((attribute) => attribute.options.length > 0)

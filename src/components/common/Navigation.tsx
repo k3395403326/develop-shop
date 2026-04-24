@@ -25,6 +25,7 @@ const Navigation: React.FC = () => {
           className={`${styles.categoryItem} ${!state.selectedCategory ? styles.active : ''}`}
           onClick={() => dispatch({ type: 'SET_SELECTED_CATEGORY', payload: '' })}
           type="button"
+          aria-current={!state.selectedCategory ? 'page' : undefined}
         >
           全部分类
         </button>
@@ -35,6 +36,7 @@ const Navigation: React.FC = () => {
             className={`${styles.categoryItem} ${state.selectedCategory === category ? styles.active : ''}`}
             onClick={() => handleCategoryClick(category)}
             type="button"
+            aria-current={state.selectedCategory === category ? 'page' : undefined}
           >
             {category}
           </button>

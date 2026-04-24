@@ -52,6 +52,9 @@ export interface AppState {
   sortBy: 'price' | 'rating' | 'reviewCount';
   sortOrder: 'asc' | 'desc';
   isLoading: boolean;
+  isRefreshing: boolean;
+  lastUpdatedAt: number | null;
+  refreshError: string | null;
   error: string | null;
 }
 
@@ -83,11 +86,14 @@ export interface CartContextType {
 // 应用动作类型
 export type AppAction =
   | { type: 'SET_PRODUCTS'; payload: Product[] }
+  | { type: 'MERGE_PRODUCTS'; payload: Product[] }
   | { type: 'SET_CATEGORIES'; payload: string[] }
   | { type: 'SET_SEARCH_QUERY'; payload: string }
   | { type: 'SET_SELECTED_CATEGORY'; payload: string }
   | { type: 'SET_SORT'; payload: { sortBy: 'price' | 'rating' | 'reviewCount'; sortOrder: 'asc' | 'desc' } }
   | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_REFRESHING'; payload: boolean }
+  | { type: 'SET_REFRESH_ERROR'; payload: string | null }
   | { type: 'SET_ERROR'; payload: string | null };
 
 // 购物车动作类型
