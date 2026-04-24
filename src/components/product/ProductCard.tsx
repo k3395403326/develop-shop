@@ -2,7 +2,7 @@ import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
 import ProgressiveImage from '../common/ProgressiveImage';
 import { Product } from '../../types';
-import { getDefaultImage } from '../../utils/imageUtils';
+import { getDefaultImage, getPicsumImage } from '../../utils/imageUtils';
 import styles from './ProductCard.module.css';
 
 interface ProductCardProps {
@@ -11,6 +11,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const fallbackImage = getDefaultImage(300, 300, product.name);
+  const secondaryFallbackImage = getPicsumImage(600, 600, `${product.id}-${product.name}`);
   const primaryImage =
     product.images.find((image) => image.trim().length > 0) ?? fallbackImage;
   const gradientId = useId().replace(/:/g, '-');
@@ -67,6 +68,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className={styles.imageStage}>
             <ProgressiveImage
               src={primaryImage}
+              secondaryFallbackSrc={secondaryFallbackImage}
               fallbackSrc={fallbackImage}
               alt={product.name}
               imageClassName={styles.productImage}

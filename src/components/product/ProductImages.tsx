@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import ProgressiveImage from '../common/ProgressiveImage';
-import { getDefaultImage } from '../../utils/imageUtils';
+import { getDefaultImage, getPicsumImage } from '../../utils/imageUtils';
 import styles from './ProductImages.module.css';
 
 interface ProductImagesProps {
@@ -23,6 +23,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showZoom, setShowZoom] = useState(false);
   const fallbackImage = getDefaultImage(640, 640, productName);
+  const secondaryFallbackImage = getPicsumImage(960, 960, `detail-${productName}`);
 
   const selectImage = (index: number) => {
     setCurrentImageIndex(index);
@@ -95,6 +96,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
       >
         <ProgressiveImage
           src={currentImage}
+          secondaryFallbackSrc={secondaryFallbackImage}
           fallbackSrc={fallbackImage}
           alt={`${productName} 第 ${currentImageIndex + 1} 张图片`}
           imageClassName={styles.mainImage}
@@ -144,6 +146,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({
             >
               <ProgressiveImage
                 src={image}
+                secondaryFallbackSrc={secondaryFallbackImage}
                 fallbackSrc={fallbackImage}
                 alt={`${productName} 缩略图 ${index + 1}`}
                 imageClassName={styles.thumbnailImage}

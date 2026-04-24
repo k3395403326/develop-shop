@@ -3,6 +3,7 @@ import styles from './ProgressiveImage.module.css';
 
 interface ProgressiveImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackSrc: string;
+  secondaryFallbackSrc?: string;
   imageClassName?: string;
   placeholderClassName?: string;
   wrapperClassName?: string;
@@ -12,6 +13,7 @@ const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
   alt,
   className,
   fallbackSrc,
+  secondaryFallbackSrc,
   imageClassName,
   placeholderClassName,
   src,
@@ -22,10 +24,12 @@ const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
 }) => {
   const [currentSrc, setCurrentSrc] = useState(src ?? fallbackSrc);
   const [isLoading, setIsLoading] = useState(true);
+  const [fallbackStep, setFallbackStep] = useState<0 | 1 | 2>(0);
 
   useEffect(() => {
     setCurrentSrc(src && src.trim().length > 0 ? src : fallbackSrc);
     setIsLoading(true);
+    setFallbackStep(0);
   }, [fallbackSrc, src]);
 
   return (
@@ -40,8 +44,16 @@ const ProgressiveImage: React.FC<ProgressiveImageProps> = ({
         onError={(event) => {
           onError?.(event);
 
-          if (currentSrc !== fallbackSrc) {
+          if (fallbackStep === 0 && secondaryFallbackSrc) {
+            setCurrentSrc(secondaryFallbackSrc);
+            setFallbackStep(1);
+            setIsLoading(true);
+            return;
+          }
+
+          if (fallbackStep < 2) {
             setCurrentSrc(fallbackSrc);
+            setFallbackStep(2);
             setIsLoading(true);
             return;
           }

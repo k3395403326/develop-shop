@@ -90,6 +90,11 @@ export const getUnsplashFeaturedImage = (
   return `https://source.unsplash.com/featured/${width}x${height}?${encodeURIComponent(query)}&sig=${sig}`;
 };
 
+export const getPicsumImage = (width: number, height: number, seed: string): string => {
+  const normalizedSeed = hashString(seed) % 2147483647;
+  return `https://picsum.photos/seed/${normalizedSeed}/${width}/${height}`;
+};
+
 const getProductKind = (category: string, name: string): ProductKind => {
   const normalized = `${category} ${name}`;
 
