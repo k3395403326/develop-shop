@@ -64,6 +64,32 @@ const escapeXml = (value: string): string =>
 
 const toSvgDataUri = (svg: string): string => `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 
+const toUnsplashQuery = (category: string, name: string): string => {
+  const normalized = `${category} ${name}`.toLowerCase();
+  const kind = getProductKind(category, name);
+
+  // Prefer photo-real keywords to match premium e-commerce cards.
+  if (kind === 'phone') return /iphone|huawei|xiaomi|vivo|oppo|honor/.test(normalized) ? 'iphone,smartphone,product' : 'smartphone,product,studio';
+  if (kind === 'laptop') return /macbook/.test(normalized) ? 'macbook,laptop,product' : 'laptop,notebook,product,desk';
+  if (kind === 'appliance') return /空调/.test(normalized) ? 'air conditioner,home appliance,product' : 'home appliance,product,minimal';
+  if (kind === 'beauty') return 'skincare,cosmetics,bottle,product,studio';
+  if (kind === 'outdoor') return /鞋|跑鞋/.test(normalized) ? 'sneakers,shoes,product,studio' : 'outdoor,gear,product,studio';
+  return /记录仪/.test(normalized) ? 'dashcam,car gadget,product,studio' : 'car accessory,product,studio';
+};
+
+export const getUnsplashFeaturedImage = (
+  width: number,
+  height: number,
+  category: string,
+  name: string,
+  seed: string,
+): string => {
+  const query = toUnsplashQuery(category, name);
+  // `source.unsplash.com/featured` returns a photo; `sig` makes it stable-ish per product.
+  const sig = hashString(`${seed}-${category}-${name}`) % 9999;
+  return `https://source.unsplash.com/featured/${width}x${height}?${encodeURIComponent(query)}&sig=${sig}`;
+};
+
 const getProductKind = (category: string, name: string): ProductKind => {
   const normalized = `${category} ${name}`;
 
@@ -372,10 +398,10 @@ export const generateProductImages = (
   name: string,
   count: number = 4,
 ): string[] => {
-  const variantOffset = hashString(productId) % 4;
-
+  // Prefer photo-real images on card/detail pages, fallback stays available via getDefaultImage.
+  const base = hashString(productId) % 4;
   return Array.from({ length: count }, (_, index) =>
-    toSvgDataUri(createProductSvg(720, 720, category, name, (variantOffset + index) % 4)),
+    getUnsplashFeaturedImage(960, 960, category, name, `${productId}-${base + index}`),
   );
 };
 
