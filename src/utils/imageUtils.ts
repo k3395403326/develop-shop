@@ -102,30 +102,92 @@ const escapeXml = (value: string): string =>
 
 const toSvgDataUri = (svg: string): string => `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 
-const sanitizeKeyword = (value: string): string =>
-  value
-    .replace(/https?:\/\/\S+/gi, '')
-    .replace(/[^\p{L}\p{N}\s+./-]/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+const unsplashPhotoUrl = (photoId: string, width: number, height: number): string => {
+  const w = Math.max(240, Math.round(width));
+  const h = Math.max(240, Math.round(height));
+  return `https://images.unsplash.com/photo-${photoId}?auto=format&fit=crop&w=${w}&h=${h}&q=85`;
+};
 
-const buildPhotoQuery = (category: string, name: string, seed: string): string => {
-  const base = sanitizeKeyword(`${category} ${name}`);
+const pickFromPool = (pool: string[], seed: string): string => pool[hashString(seed) % pool.length] ?? pool[0];
+
+// Curated Unsplash photo ids (`images.unsplash.com/photo-...`). `source.unsplash.com/featured` ignores queries and returns unrelated images.
+const PHONE_APPLE: string[] = [
+  '1727093493740-90af54b99738',
+  '1664478546384-d57ffe74a78c',
+  '1605404771345-f907b42c0246',
+];
+
+const PHONE_GENERIC: string[] = ['1664478546384-d57ffe74a78c', '1605404771345-f907b42c0246', '1727093493740-90af54b99738'];
+
+const LAPTOP_APPLE: string[] = ['1587560699334-cc4ff634909a', '1494135820019-7afdee2d494f'];
+
+const LAPTOP_GENERIC: string[] = ['1587560699334-cc4ff634909a', '1494135820019-7afdee2d494f'];
+
+const APPLIANCE_FRIDGE: string[] = ['1544928879-7342a2f3ce42'];
+
+const APPLIANCE_WASHER: string[] = ['1626806818535-29c61b8cd3f7', '1628843226223-989e20810393'];
+
+const APPLIANCE_AIRCON: string[] = ['1582239052618-4e2324cef034'];
+
+const BEAUTY: string[] = ['1767256046031-743d33937c4e'];
+
+const OUTDOOR_SHOE: string[] = ['1625860191460-10a66c7384fb', '1562687782-9f2fd422a334'];
+
+const OUTDOOR_TENT: string[] = ['1455763916899-e8b50eca9967'];
+
+const OUTDOOR_WATCH: string[] = ['1649030612217-05ce00752236'];
+
+const CAR_ACCESSORY: string[] = ['1539787200876-3c033a7bebcd', '1623174891354-afea5ddadcad'];
+
+const getPhonePhotoPool = (name: string): string[] => {
+  if (/(Apple|苹果|iPhone|iPad)/i.test(name)) return PHONE_APPLE;
+  return PHONE_GENERIC;
+};
+
+const getLaptopPhotoPool = (name: string): string[] => {
+  if (/(MacBook|Mac\s?Book|苹果笔记本|Apple)/i.test(name)) return LAPTOP_APPLE;
+  return LAPTOP_GENERIC;
+};
+
+const getAppliancePhotoPool = (name: string): string[] => {
+  const kind = getApplianceKind(name);
+  if (kind === 'washer') return APPLIANCE_WASHER;
+  if (kind === 'aircon') return APPLIANCE_AIRCON;
+  return APPLIANCE_FRIDGE;
+};
+
+const getOutdoorPhotoPool = (name: string): string[] => {
+  const kind = getOutdoorKind(name);
+  if (kind === 'tent') return OUTDOOR_TENT;
+  if (kind === 'watch') return OUTDOOR_WATCH;
+  return OUTDOOR_SHOE;
+};
+
+const getPhotoPool = (category: string, name: string): string[] => {
   const kind = getProductKind(category, name);
-  const studioHints =
-    kind === 'beauty'
-      ? 'cosmetics,skincare,product photography,studio,white background'
-      : 'product photography,studio,white background,ecommerce';
 
-  // Keep the query anchored to the actual product text to avoid random scenery mismatches.
-  const sig = hashString(`${seed}-${category}-${name}`) % 97;
-  return `${base},${studioHints},sig${sig}`;
+  switch (kind) {
+    case 'phone':
+      return getPhonePhotoPool(name);
+    case 'laptop':
+      return getLaptopPhotoPool(name);
+    case 'appliance':
+      return getAppliancePhotoPool(name);
+    case 'beauty':
+      return BEAUTY;
+    case 'outdoor':
+      return getOutdoorPhotoPool(name);
+    case 'car':
+      return CAR_ACCESSORY;
+    default:
+      return PHONE_GENERIC;
+  }
 };
 
 export const getPhotoFallbackUrl = (width: number, height: number, category: string, name: string, seed: string): string => {
-  const query = buildPhotoQuery(category, name, seed);
-  const sig = hashString(`${seed}-${category}-${name}`) % 9999;
-  return `https://source.unsplash.com/featured/${width}x${height}?${encodeURIComponent(query)}&sig=${sig}`;
+  const pool = getPhotoPool(category, name);
+  const photoId = pickFromPool(pool, `${seed}|${category}|${name}`);
+  return unsplashPhotoUrl(photoId, width, height);
 };
 
 const getPalette = (category: string, name: string, variant: number): Palette => {
