@@ -19,7 +19,7 @@ type ProductAttribute = {
   options: AttributeOption[];
 };
 
-type ApiProduct = {
+export type ApiProduct = {
   id: string;
   name: string;
   price: number;
@@ -750,6 +750,22 @@ const scrapeCategoryProducts = async (source: CategorySource): Promise<ApiProduc
   return buildLiveProducts(items);
 };
 
+export const fetchJdTrendingProducts = async (): Promise<ApiProduct[]> => {
+  try {
+    const results = await Promise.allSettled(CATEGORY_SOURCES.map((source) => scrapeCategoryProducts(source)));
+    const liveProducts = results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+
+    if (liveProducts.length < MINIMUM_LIVE_PRODUCTS) {
+      return buildFallbackResponse();
+    }
+
+    return liveProducts;
+  } catch (error) {
+    console.error('Failed to build live trending products', error);
+    return buildFallbackResponse();
+  }
+};
+
 export default async function handler(req: VercelRequestLike, res: VercelResponseLike) {
   res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
 
@@ -758,18 +774,6 @@ export default async function handler(req: VercelRequestLike, res: VercelRespons
     return;
   }
 
-  try {
-    const results = await Promise.allSettled(CATEGORY_SOURCES.map((source) => scrapeCategoryProducts(source)));
-    const liveProducts = results.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
-
-    if (liveProducts.length < MINIMUM_LIVE_PRODUCTS) {
-      res.status(200).json(buildFallbackResponse());
-      return;
-    }
-
-    res.status(200).json(liveProducts);
-  } catch (error) {
-    console.error('Failed to build live trending products', error);
-    res.status(200).json(buildFallbackResponse());
-  }
+  const products = await fetchJdTrendingProducts();
+  res.status(200).json(products);
 }

@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import HomeProductFeed from '../components/home/HomeProductFeed';
 import ProgressiveImage from '../components/common/ProgressiveImage';
-import ProductList from '../components/product/ProductList';
 import { useApp, useFilteredProducts } from '../context/AppContext';
 import { getDefaultImage, getPhotoFallbackUrl } from '../utils/imageUtils';
 import styles from './HomePage.module.css';
 
 const keywordTags = ['国家补贴', '爆款直降', '热榜更新', '现货优先'];
+const hotKeywords = ['空调', '洗衣机', '冰箱', '手机', '笔记本', '护肤礼盒'];
 
 const serviceHighlights = [
   {
@@ -90,16 +91,47 @@ const HomePage: React.FC = () => {
     [state.categories, state.products],
   );
 
-  const sortLabel =
-    state.sortBy === 'price'
-      ? `价格${state.sortOrder === 'asc' ? '从低到高' : '从高到低'}`
-      : state.sortBy === 'reviewCount'
-        ? '热度优先'
-        : '综合推荐';
+  const jdGreeting = useMemo(() => {
+    const hour = new Date().getHours();
+
+    if (hour < 11) {
+      return '早上好';
+    }
+
+    if (hour < 14) {
+      return '中午好';
+    }
+
+    if (hour < 18) {
+      return '下午好';
+    }
+
+    return '晚上好';
+  }, []);
+
+  const promoTiles = useMemo(() => {
+    const pool = [...topDeals, ...filteredProducts];
+    const unique: typeof filteredProducts = [];
+    const seen = new Set<string>();
+
+    for (const product of pool) {
+      if (seen.has(product.id)) {
+        continue;
+      }
+
+      seen.add(product.id);
+      unique.push(product);
+
+      if (unique.length >= 4) {
+        break;
+      }
+    }
+
+    return unique;
+  }, [topDeals, filteredProducts]);
 
   const leadProduct = hotRankings[0] ?? topDeals[0] ?? filteredProducts[0];
   const rankingPreview = hotRankings.slice(0, 3);
-  const currentLabel = state.selectedCategory || '首页热卖';
   const refreshText = state.isRefreshing
     ? '正在更新热卖榜'
     : state.lastUpdatedAt
@@ -148,7 +180,7 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className={styles.homePage}>
+    <div className={`${styles.homePage} ${styles.jdShell}`}>
       <div className="container">
         <section className={styles.heroSection}>
           <aside className={styles.categoryMenu}>
@@ -290,15 +322,47 @@ const HomePage: React.FC = () => {
                 <strong className={styles.metricValue}>{formatPrice(totalSavings)}</strong>
               </div>
             </div>
+
+            <div className={styles.promoQuad}>
+              {['秒送频道', '京东直播', '限时秒杀', '补贴好价'].map((label, index) => {
+                const product = promoTiles[index];
+
+                if (!product) {
+                  return null;
+                }
+
+                return (
+                  <Link key={`${product.id}-${label}`} to={`/product/${product.id}`} className={styles.promoTile}>
+                    <span className={styles.promoKicker}>{label}</span>
+                    <div className={styles.promoImageShell}>
+                      <ProgressiveImage
+                        src={product.images[0]}
+                        secondaryFallbackSrc={getPhotoFallbackUrl(720, 720, product.category, product.name, `promo-${product.id}`)}
+                        fallbackSrc={getDefaultImage(320, 320, product.name)}
+                        alt={product.name}
+                        imageClassName={styles.promoImage}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                    <div className={styles.promoBody}>
+                      <span className={styles.promoTitle}>{clampText(product.name, 22)}</span>
+                      <span className={styles.promoPrice}>{formatPrice(product.price)}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           <aside className={styles.heroAside}>
             <div className={styles.memberCard}>
-              <span className={styles.memberTag}>精选导购</span>
-              <h3 className={styles.memberTitle}>一屏看清好价和热度</h3>
-              <p className={styles.memberDescription}>
-                中间主会场只保留最重要的信息，热榜放到右侧卡片，浏览节奏更轻松。
+              <span className={styles.memberTag}>京东用户</span>
+              <p className={styles.memberHi}>
+                Hi，{jdGreeting}～
               </p>
+              <h3 className={styles.memberTitle}>登录后享更多优惠</h3>
+              <p className={styles.memberDescription}>京豆、红包、白条与专属价会在登录后同步展示。</p>
               <div className={styles.memberList}>
                 <span>热卖与折扣同时展示</span>
                 <span>统一商品视觉更高级</span>
@@ -352,111 +416,23 @@ const HomePage: React.FC = () => {
           ))}
         </section>
 
-        <section className={styles.flashSection}>
-          <div className={styles.sectionHeading}>
-            <div>
-              <h2 className={styles.sectionTitle}>限时好价</h2>
-              <p className={styles.sectionSub}>优先展示优惠幅度更明显的爆款商品</p>
-            </div>
-            <span className={styles.sectionMeta}>{discountProducts.length} 款直降商品</span>
-          </div>
-
-          <div className={styles.flashGrid}>
-            {topDeals.map((product) => (
-              <Link key={product.id} to={`/product/${product.id}`} className={styles.flashCard}>
-                <div className={styles.flashImageShell}>
-                  <ProgressiveImage
-                    src={product.images[0]}
-                    secondaryFallbackSrc={getPhotoFallbackUrl(960, 960, product.category, product.name, `deal-${product.id}`)}
-                    fallbackSrc={getDefaultImage(360, 360, product.name)}
-                    alt={product.name}
-                    imageClassName={styles.flashImage}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <div className={styles.flashContent}>
-                  <span className={styles.flashTag}>限时直降</span>
-                  <h3 className={styles.flashTitle}>{product.name}</h3>
-                  <p className={styles.flashDescription}>{product.description}</p>
-                </div>
-                <div className={styles.flashBottom}>
-                  <div>
-                    <span className={styles.flashPrice}>{formatPrice(product.price)}</span>
-                    {product.originalPrice ? (
-                      <span className={styles.flashOriginalPrice}>{formatPrice(product.originalPrice)}</span>
-                    ) : null}
-                  </div>
-                  <span className={styles.flashAction}>立即查看</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className={styles.channelSection}>
-          <div className={styles.sectionHeading}>
-            <div>
-              <h2 className={styles.sectionTitle}>频道会场</h2>
-              <p className={styles.sectionSub}>按热门分类快速切换浏览体验</p>
-            </div>
-          </div>
-
-          <div className={styles.channelGrid}>
-            {categoryShowcase.map((item) => (
+        <div className={styles.jdHotRow}>
+          <span className={styles.jdHotLabel}>热搜：</span>
+          <div className={styles.jdHotList}>
+            {hotKeywords.map((word) => (
               <button
-                key={item.category}
-                className={`${styles.channelCard} ${state.selectedCategory === item.category ? styles.channelCardActive : ''}`}
-                onClick={() => dispatch({ type: 'SET_SELECTED_CATEGORY', payload: item.category })}
+                key={word}
                 type="button"
+                className={styles.jdHotChip}
+                onClick={() => dispatch({ type: 'SET_SEARCH_QUERY', payload: word })}
               >
-                <span className={styles.channelTop}>
-                  <span className={styles.channelName}>{item.category}</span>
-                  {item.sample ? (
-                    <span className={styles.channelImageShell}>
-                      <ProgressiveImage
-                        src={item.sample.images[0]}
-                        secondaryFallbackSrc={getPhotoFallbackUrl(
-                          720,
-                          720,
-                          item.sample.category,
-                          item.sample.name,
-                          `channel-${item.sample.id}`,
-                        )}
-                        fallbackSrc={getDefaultImage(160, 160, item.sample.name)}
-                        alt={item.sample.name}
-                        imageClassName={styles.channelImage}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </span>
-                  ) : null}
-                </span>
-                <strong className={styles.channelCount}>{item.count} 款热卖</strong>
-                <span className={styles.channelSample}>
-                  {item.sample ? clampText(item.sample.name, 22) : '点击查看本会场商品'}
-                </span>
+                {word}
               </button>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section className={styles.floorHeader}>
-          <div>
-            <h2 className={styles.floorTitle}>{currentLabel} 商品列表</h2>
-            <p className={styles.floorDescription}>
-              共找到 {filteredProducts.length} 款商品，当前排序为 {sortLabel}
-            </p>
-          </div>
-
-          <div className={styles.metaChips}>
-            {state.searchQuery ? <span className={styles.chip}>搜索词：{state.searchQuery}</span> : null}
-            <span className={styles.chip}>在售现货：{inStockCount}</span>
-            <span className={styles.chip}>优惠商品：{discountProducts.length}</span>
-          </div>
-        </section>
-
-        <ProductList products={filteredProducts} />
+        <HomeProductFeed categoryTabs={state.categories} />
       </div>
     </div>
   );

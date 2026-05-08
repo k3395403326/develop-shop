@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { devApiPlugin } from './vite/devApiPlugin'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), devApiPlugin()],
   css: {
     modules: {
       localsConvention: 'camelCase'
