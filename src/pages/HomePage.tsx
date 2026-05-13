@@ -1,438 +1,176 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import HomeProductFeed from '../components/home/HomeProductFeed';
-import ProgressiveImage from '../components/common/ProgressiveImage';
 import { useApp, useFilteredProducts } from '../context/AppContext';
-import { getDefaultImage, getPhotoFallbackUrl } from '../utils/imageUtils';
+import { Product } from '../types';
 import styles from './HomePage.module.css';
 
-const keywordTags = ['国家补贴', '爆款直降', '热榜更新', '现货优先'];
-const hotKeywords = ['空调', '洗衣机', '冰箱', '手机', '笔记本', '护肤礼盒'];
-
-const serviceHighlights = [
-  {
-    title: '快',
-    subtitle: '热卖商品更集中',
-    description: '首页优先收拢高热度和现货商品，逛起来更接近主站会场。',
-  },
-  {
-    title: '省',
-    subtitle: '好价信息更清楚',
-    description: '折扣幅度、到手价和热度标签放在一屏内，不用反复点进详情。',
-  },
-  {
-    title: '稳',
-    subtitle: '图片风格更统一',
-    description: '商品图改成统一的精品视觉，不再出现杂乱抓取图和二手感封面。',
-  },
-  {
-    title: '新',
-    subtitle: '榜单商品会更新',
-    description: '商品仍然来自京东热卖榜，抓取失败时自动切回兜底爆款库。',
-  },
+const categories = [
+  '冰洗 / 空调 / 电视 / 厨卫大电',
+  '电脑 / 办公 / 文具用品',
+  '手机 / 运营商 / 数码',
+  '生活电器 / 厨房小电 / 个护健康',
+  '食品 / 酒类 / 生鲜 / 特产',
+  '美妆 / 个护清洁 / 宠物',
+  '元器件 / 劳保物资 / 五金机电',
+  '家装 / 建材 / 家具',
+  '家居日用 / 厨具',
+  '男鞋 / 运动 / 户外',
+  '男装 / 女装 / 童装 / 内衣'
 ];
 
-const skeletonItems = Array.from({ length: 8 }, (_, index) => index);
-
-const formatPrice = (price: number) => `¥${price.toLocaleString('zh-CN')}`;
-
-const formatUpdatedAt = (timestamp: number | null): string =>
-  timestamp
-    ? new Intl.DateTimeFormat('zh-CN', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(timestamp)
-    : '等待更新';
-
-const clampText = (value: string, maxLength: number): string =>
-  value.length > maxLength ? `${value.slice(0, maxLength).trim()}...` : value;
+const rightPromos = [
+  { title: '国家补贴', sub: '惠享正品', bgColor: '#e6fae8', color: '#0f763a', keyword: '手机' },
+  { title: '精致美妆', sub: '品质之选', bgColor: '#f6efff', color: '#6d28d9', keyword: '精华' },
+  { title: '超值百货', sub: '省心省钱', bgColor: '#eaf4ff', color: '#0284c7', keyword: '洗烘' },
+  { title: '品质五金', sub: '超值特惠', bgColor: '#fffbe6', color: '#d97706', keyword: '记录仪' }
+];
 
 const HomePage: React.FC = () => {
-  const { state, dispatch } = useApp();
+  const { state } = useApp();
   const filteredProducts = useFilteredProducts();
-  const inStockCount = filteredProducts.filter((product) => product.stock > 0).length;
-  const discountProducts = filteredProducts.filter(
-    (product) => product.originalPrice && product.originalPrice > product.price,
-  );
-  const totalSavings = discountProducts.reduce(
-    (sum, product) => sum + ((product.originalPrice ?? product.price) - product.price),
-    0,
-  );
+  
+  // 用于推荐商品的状态和定时刷新逻辑
+  const [recommendProducts, setRecommendProducts] = useState<Product[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const topDeals = useMemo(
-    () =>
-      [...filteredProducts]
-        .sort(
-          (a, b) =>
-            (b.originalPrice ?? b.price) -
-            b.price -
-            ((a.originalPrice ?? a.price) - a.price),
-        )
-        .slice(0, 4),
-    [filteredProducts],
-  );
+  useEffect(() => {
+    // 每次刷新打乱商品数组并截取前10个
+    const shuffled = [...filteredProducts].sort(() => 0.5 - Math.random());
+    setRecommendProducts(shuffled.slice(0, 10));
+  }, [filteredProducts, refreshKey]);
 
-  const hotRankings = useMemo(
-    () => [...filteredProducts].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 4),
-    [filteredProducts],
-  );
-
-  const categoryShowcase = useMemo(
-    () =>
-      state.categories.map((category) => {
-        const items = state.products.filter((product) => product.category === category);
-
-        return {
-          category,
-          count: items.length,
-          sample: items[0],
-        };
-      }),
-    [state.categories, state.products],
-  );
-
-  const jdGreeting = useMemo(() => {
-    const hour = new Date().getHours();
-
-    if (hour < 11) {
-      return '早上好';
-    }
-
-    if (hour < 14) {
-      return '中午好';
-    }
-
-    if (hour < 18) {
-      return '下午好';
-    }
-
-    return '晚上好';
+  useEffect(() => {
+    // 设置每15秒刷新一次商品
+    const interval = setInterval(() => {
+      setRefreshKey(prev => prev + 1);
+    }, 15000);
+    return () => clearInterval(interval);
   }, []);
 
-  const promoTiles = useMemo(() => {
-    const pool = [...topDeals, ...filteredProducts];
-    const unique: typeof filteredProducts = [];
-    const seen = new Set<string>();
+  const promoImages = useMemo(() => {
+    // 尝试为右侧promo寻找匹配的图片
+    return rightPromos.map(promo => {
+      const match = state.products.find(p => p.name.includes(promo.keyword) || p.category.includes(promo.keyword));
+      return match ? match.images[0] : '';
+    });
+  }, [state.products]);
 
-    for (const product of pool) {
-      if (seen.has(product.id)) {
-        continue;
-      }
-
-      seen.add(product.id);
-      unique.push(product);
-
-      if (unique.length >= 4) {
-        break;
-      }
-    }
-
-    return unique;
-  }, [topDeals, filteredProducts]);
-
-  const leadProduct = hotRankings[0] ?? topDeals[0] ?? filteredProducts[0];
-  const rankingPreview = hotRankings.slice(0, 3);
-  const refreshText = state.isRefreshing
-    ? '正在更新热卖榜'
-    : state.lastUpdatedAt
-      ? `刚刚更新 ${formatUpdatedAt(state.lastUpdatedAt)}`
-      : '热卖榜准备中';
+  // 中间Hero Banner商品
+  const heroProduct = state.products.find(p => p.name.includes('电脑') || p.name.includes('极光')) || state.products[0];
 
   if (state.isLoading) {
-    return (
-      <div className={styles.homePage}>
-        <div className="container">
-          <section className={styles.loadingContainer} aria-busy="true" aria-label="正在加载商品">
-            <div className={`${styles.loadingHero} skeleton`}></div>
-            <div className={styles.loadingGrid}>
-              {skeletonItems.map((item) => (
-                <div key={item} className={`${styles.loadingCard} skeleton`}></div>
-              ))}
-            </div>
-            <p>正在整理近期热卖商品，请稍候...</p>
-          </section>
-        </div>
-      </div>
-    );
-  }
-
-  if (state.error) {
-    return (
-      <div className={styles.errorContainer}>
-        <div className={styles.errorIcon}>
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 9V13M12 17H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
-        <h3>页面加载失败</h3>
-        <p>{state.error}</p>
-        <button className="btn btn-primary" onClick={() => window.location.reload()} type="button">
-          重新加载
-        </button>
-      </div>
-    );
+    return <div className={styles.loading}>加载中...</div>;
   }
 
   return (
-    <div className={`${styles.homePage} ${styles.jdShell}`}>
+    <div className={styles.homePage}>
       <div className="container">
-        <section className={styles.heroSection}>
-          <aside className={styles.categoryMenu}>
-            <div className={styles.menuTitle}>全部商品分类</div>
-            <div className={styles.menuList}>
-              <button
-                className={`${styles.menuItem} ${!state.selectedCategory ? styles.menuItemActive : ''}`}
-                onClick={() => dispatch({ type: 'SET_SELECTED_CATEGORY', payload: '' })}
-                type="button"
-              >
-                <span>首页热卖</span>
-                <strong>{state.products.length} 款爆品</strong>
-              </button>
-
-              {categoryShowcase.map((item) => (
-                <button
-                  key={item.category}
-                  className={`${styles.menuItem} ${state.selectedCategory === item.category ? styles.menuItemActive : ''}`}
-                  onClick={() =>
-                    dispatch({
-                      type: 'SET_SELECTED_CATEGORY',
-                      payload: state.selectedCategory === item.category ? '' : item.category,
-                    })
-                  }
-                  type="button"
-                >
-                  <span>{item.category}</span>
-                  <strong>{item.count} 款热卖</strong>
-                </button>
+        
+        {/* 第一屏：三列布局 */}
+        <section className={styles.firstScreen}>
+          
+          {/* 左侧菜单 */}
+          <aside className={styles.leftMenu}>
+            <div className={styles.menuHeader}>分类</div>
+            <ul className={styles.menuList}>
+              {categories.map((cat, idx) => (
+                <li key={idx} className={styles.menuItem}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight: 8, opacity: 0.6}}>
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                  {cat}
+                </li>
               ))}
-            </div>
+            </ul>
           </aside>
 
-          <div className={styles.heroCenter}>
-            <div className={styles.refreshBar} aria-live="polite">
-              <span className={`${styles.refreshDot} ${state.isRefreshing ? styles.refreshDotActive : ''}`}></span>
-              <span>{refreshText}</span>
-              {state.refreshError ? <strong>{state.refreshError}</strong> : null}
-            </div>
-
-            <div className={styles.heroBanner}>
-              <div className={styles.heroCopy}>
-                <span className={styles.heroBadge}>主会场焕新</span>
-                <h1 className={styles.heroTitle}>
-                  {state.selectedCategory ? `${state.selectedCategory} 爆款会场` : '更清爽的京选热卖首页'}
-                </h1>
-                <p className={styles.heroDescription}>
-                  首页现在优先展示京东热卖榜的高热度商品，图片统一做成精品视觉，主会场、热榜和商品卡的留白也更舒服了。
-                </p>
-
-                <div className={styles.heroActions}>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() =>
-                      dispatch({
-                        type: 'SET_SELECTED_CATEGORY',
-                        payload: state.selectedCategory || state.categories[0] || '',
-                      })
-                    }
-                    type="button"
-                  >
-                    进入热卖榜
-                  </button>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      dispatch({ type: 'SET_SELECTED_CATEGORY', payload: '' });
-                      dispatch({ type: 'SET_SEARCH_QUERY', payload: '' });
-                    }}
-                    type="button"
-                  >
-                    查看全部商品
-                  </button>
+          {/* 中间大图轮播区 */}
+          <div className={styles.centerHero}>
+             <div className={styles.heroBanner}>
+                <div className={styles.heroContent}>
+                   <h2 className={styles.heroTitle}>电脑全系性能巅峰<br/>工作娱乐畅享无忧</h2>
+                   <p className={styles.heroSubTitle}>极速性能 超值钜惠</p>
                 </div>
-
-                <div className={styles.keywordRow}>
-                  {keywordTags.map((tag) => (
-                    <span key={tag} className={styles.keywordChip}>
-                      {tag}
-                    </span>
-                  ))}
+                {heroProduct && (
+                  <div className={styles.heroImageWrapper}>
+                    <img src={heroProduct.images[0]} alt="Hero Product" className={styles.heroImage} />
+                  </div>
+                )}
+                <div className={styles.sliderDots}>
+                  <span className={`${styles.dot} ${styles.activeDot}`}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
                 </div>
-              </div>
-
-              {leadProduct ? (
-                <Link to={`/product/${leadProduct.id}`} className={styles.spotlightCard}>
-                  <div className={styles.spotlightHeader}>
-                    <span className={styles.spotlightTag}>今日主推</span>
-                    <span className={styles.spotlightCategory}>{leadProduct.category}</span>
-                  </div>
-
-                  <div className={styles.spotlightImageShell}>
-                    <div className={styles.spotlightImageGlow}></div>
-                    <ProgressiveImage
-                      src={leadProduct.images[0]}
-                      secondaryFallbackSrc={getPhotoFallbackUrl(
-                        960,
-                        960,
-                        leadProduct.category,
-                        leadProduct.name,
-                        `spotlight-${leadProduct.id}`,
-                      )}
-                      fallbackSrc={getDefaultImage(720, 720, leadProduct.name)}
-                      alt={leadProduct.name}
-                      imageClassName={styles.spotlightImage}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-
-                  <div className={styles.spotlightBody}>
-                    <h2 className={styles.spotlightTitle}>{leadProduct.name}</h2>
-                    <p className={styles.spotlightDescription}>
-                      {clampText(leadProduct.description, 54)}
-                    </p>
-                    <div className={styles.spotlightQuickStats}>
-                      <span className={styles.spotlightStat}>
-                        {leadProduct.reviewCount.toLocaleString('zh-CN')} 条评价
-                      </span>
-                      <span className={styles.spotlightStat}>{leadProduct.rating.toFixed(1)} 高分</span>
-                    </div>
-                    <div className={styles.spotlightPrice}>{formatPrice(leadProduct.price)}</div>
-                  </div>
-                </Link>
-              ) : null}
-            </div>
-
-            <div className={styles.metricGrid}>
-              <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>当前会场商品</span>
-                <strong className={styles.metricValue}>{filteredProducts.length}</strong>
-              </div>
-              <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>现货可下单</span>
-                <strong className={styles.metricValue}>{inStockCount}</strong>
-              </div>
-              <div className={styles.metricCard}>
-                <span className={styles.metricLabel}>累计可省</span>
-                <strong className={styles.metricValue}>{formatPrice(totalSavings)}</strong>
-              </div>
-            </div>
-
-            <div className={styles.promoQuad}>
-              {['秒送频道', '京东直播', '限时秒杀', '补贴好价'].map((label, index) => {
-                const product = promoTiles[index];
-
-                if (!product) {
-                  return null;
-                }
-
-                return (
-                  <Link key={`${product.id}-${label}`} to={`/product/${product.id}`} className={styles.promoTile}>
-                    <span className={styles.promoKicker}>{label}</span>
-                    <div className={styles.promoImageShell}>
-                      <ProgressiveImage
-                        src={product.images[0]}
-                        secondaryFallbackSrc={getPhotoFallbackUrl(720, 720, product.category, product.name, `promo-${product.id}`)}
-                        fallbackSrc={getDefaultImage(320, 320, product.name)}
-                        alt={product.name}
-                        imageClassName={styles.promoImage}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                    <div className={styles.promoBody}>
-                      <span className={styles.promoTitle}>{clampText(product.name, 22)}</span>
-                      <span className={styles.promoPrice}>{formatPrice(product.price)}</span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+                <button className={styles.heroNavLeft}>&lt;</button>
+                <button className={styles.heroNavRight}>&gt;</button>
+                <div className={styles.hotTag}>HOT!</div>
+             </div>
           </div>
 
-          <aside className={styles.heroAside}>
-            <div className={styles.memberCard}>
-              <span className={styles.memberTag}>京东用户</span>
-              <p className={styles.memberHi}>
-                Hi，{jdGreeting}～
-              </p>
-              <h3 className={styles.memberTitle}>登录后享更多优惠</h3>
-              <p className={styles.memberDescription}>京豆、红包、白条与专属价会在登录后同步展示。</p>
-              <div className={styles.memberList}>
-                <span>热卖与折扣同时展示</span>
-                <span>统一商品视觉更高级</span>
-                <span>图片完整展示不裁切</span>
-              </div>
-            </div>
-
-            <div className={styles.rankCard}>
-              <div className={styles.sectionHeading}>
-                <div>
-                  <h3 className={styles.sectionTitle}>热度排行</h3>
-                  <p className={styles.sectionSub}>最近最受关注的商品</p>
+          {/* 右侧促销位 */}
+          <div className={styles.rightPromos}>
+            {rightPromos.map((promo, idx) => (
+              <div key={idx} className={styles.promoCard} style={{ backgroundColor: promo.bgColor }}>
+                <div className={styles.promoText}>
+                  <div className={styles.promoTitle} style={{ color: promo.color }}>{promo.title}</div>
+                  <div className={styles.promoSub} style={{ color: promo.color }}>{promo.sub}</div>
+                </div>
+                <div className={styles.promoImgWrapper}>
+                  {promoImages[idx] && <img src={promoImages[idx]} alt={promo.title} className={styles.promoImg} />}
                 </div>
               </div>
-              <div className={styles.rankList}>
-                {rankingPreview.map((product, index) => (
-                  <Link key={product.id} to={`/product/${product.id}`} className={styles.rankItem}>
-                    <span className={styles.rankIndex}>{index + 1}</span>
-                    <div className={styles.rankThumbWrap}>
-                      <ProgressiveImage
-                        src={product.images[0]}
-                        secondaryFallbackSrc={getPhotoFallbackUrl(720, 720, product.category, product.name, `rank-${product.id}`)}
-                        fallbackSrc={getDefaultImage(180, 180, product.name)}
-                        alt={product.name}
-                        imageClassName={styles.rankThumb}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                    <div className={styles.rankContent}>
-                      <strong>{clampText(product.name, 20)}</strong>
-                      <span>{product.reviewCount.toLocaleString('zh-CN')} 条评价</span>
-                    </div>
-                    <span className={styles.rankPrice}>{formatPrice(product.price)}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </aside>
-        </section>
-
-        <section className={styles.promiseBar}>
-          {serviceHighlights.map((item) => (
-            <article key={item.title} className={styles.promiseCard}>
-              <span className={styles.promiseSymbol}>{item.title}</span>
-              <div>
-                <h3 className={styles.promiseTitle}>{item.subtitle}</h3>
-                <p className={styles.promiseDescription}>{item.description}</p>
-              </div>
-            </article>
-          ))}
-        </section>
-
-        <div className={styles.jdHotRow}>
-          <span className={styles.jdHotLabel}>热搜：</span>
-          <div className={styles.jdHotList}>
-            {hotKeywords.map((word) => (
-              <button
-                key={word}
-                type="button"
-                className={styles.jdHotChip}
-                onClick={() => dispatch({ type: 'SET_SEARCH_QUERY', payload: word })}
-              >
-                {word}
-              </button>
             ))}
           </div>
-        </div>
 
-        <HomeProductFeed categoryTabs={state.categories} />
+        </section>
+
+        {/* 为你推荐 */}
+        <section className={styles.recommendSection}>
+          <div className={styles.sectionHeader}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#e1251b" style={{marginRight: 8}}>
+               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <h3 className={styles.sectionTitle}>为你推荐</h3>
+            <span className={styles.refreshIndicator}>
+              <span className={styles.pulseDot}></span> 将在数秒后自动更新
+            </span>
+          </div>
+
+          <div className={styles.recommendGrid}>
+            {recommendProducts.map((product) => {
+              const discount = product.originalPrice ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100) : 0;
+              return (
+                <Link to={`/product/${product.id}`} key={product.id} className={styles.productCard}>
+                  <div className={styles.productImgWrapper}>
+                    <img src={product.images[0]} alt={product.name} className={styles.productImg} />
+                  </div>
+                  <div className={styles.productInfo}>
+                    {discount > 0 && (
+                      <div className={styles.tags}>
+                        <span className={styles.tagLabel}>本店铺热卖商品</span>
+                        <span className={styles.tagHighlight}>立省{discount}%</span>
+                      </div>
+                    )}
+                    <h4 className={styles.productName}>{product.name}</h4>
+                    <div className={styles.priceRow}>
+                      <span className={styles.priceSymbol}>¥</span>
+                      <span className={styles.priceValue}>{product.price.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
       </div>
     </div>
   );
