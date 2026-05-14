@@ -5,6 +5,7 @@ interface LogEntry {
   ip: string;
   path: string;
   time: string;
+  device: string;
   ua: string;
 }
 
@@ -297,6 +298,7 @@ const AdminPage: React.FC = () => {
                   <tr>
                     <th>时间</th>
                     <th>IP 地址</th>
+                    <th>设备</th>
                     <th>访问路径</th>
                     <th>操作</th>
                   </tr>
@@ -306,6 +308,7 @@ const AdminPage: React.FC = () => {
                     <tr key={i}>
                       <td>{new Date(log.time).toLocaleString('zh-CN')}</td>
                       <td><code>{log.ip}</code></td>
+                      <td>{log.device || '—'}</td>
                       <td>{log.path}</td>
                       <td>
                         <button

@@ -86,6 +86,33 @@ const blockedHTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// 解析 User-Agent 为可读的设备信息
+function parseDevice(ua: string): string {
+  if (!ua) return '未知设备';
+
+  // 识别操作系统
+  let os = '未知';
+  if (ua.includes('iPhone')) os = 'iPhone';
+  else if (ua.includes('iPad')) os = 'iPad';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('Windows')) os = 'Windows';
+  else if (ua.includes('Mac OS')) os = 'Mac';
+  else if (ua.includes('Linux')) os = 'Linux';
+
+  // 识别浏览器
+  let browser = '';
+  if (ua.includes('MicroMessenger')) browser = '微信';
+  else if (ua.includes('QQ/')) browser = 'QQ浏览器';
+  else if (ua.includes('Alipay')) browser = '支付宝';
+  else if (ua.includes('DingTalk')) browser = '钉钉';
+  else if (ua.includes('Edg/')) browser = 'Edge';
+  else if (ua.includes('Chrome/') && !ua.includes('Edg/')) browser = 'Chrome';
+  else if (ua.includes('Firefox/')) browser = 'Firefox';
+  else if (ua.includes('Safari/') && !ua.includes('Chrome/')) browser = 'Safari';
+
+  return browser ? `${os} ${browser}` : os;
+}
+
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, env, next } = context;
   const url = new URL(request.url);
@@ -136,11 +163,13 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // 检查 3：记录访问日志（最近 200 条）
+    const rawUA = request.headers.get('user-agent') || '';
     const logEntry = JSON.stringify({
       ip: visitorIP,
       path: url.pathname,
       time: new Date().toISOString(),
-      ua: request.headers.get('user-agent') || '',
+      device: parseDevice(rawUA),
+      ua: rawUA,
     });
     const existingLogs = await env.SITE_CONFIG.get('access_logs');
     const logs: string[] = existingLogs ? JSON.parse(existingLogs) : [];
