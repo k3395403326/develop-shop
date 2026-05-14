@@ -6,9 +6,17 @@ import HomePage from './pages/HomePage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import SearchResultsPage from './pages/SearchResultsPage';
 import CartPage from './pages/CartPage';
+import MaintenancePage from './pages/MaintenancePage';
 import './styles/global.css';
 
+// 网站维护模式开关：设为 true 则全站显示维护中，设为 false 则正常运行
+const IS_MAINTENANCE_MODE = false;
+
 function App() {
+  if (IS_MAINTENANCE_MODE) {
+    return <MaintenancePage />;
+  }
+
   return (
     <AppProvider>
       <CartProvider>

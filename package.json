@@ -10,7 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "jest",
-    "push": "git add . && git commit -m \"Auto update code\" && git push"
+    "push": "git add . && git commit -m \"Auto update code\" && git push && git checkout main && git merge 2026-05-08-lu4k && git push origin main && git checkout 2026-05-08-lu4k"
   },
   "dependencies": {
     "react": "^18.2.0",
