@@ -190,3 +190,54 @@
 .hotWord:hover {
   color: #e1251b;
 }
+
+/* ========= 移动端适配 ========= */
+@media (max-width: 768px) {
+  .topNav {
+    display: none;
+  }
+
+  .mainHeader {
+    padding: 10px 0;
+  }
+
+  .mainHeaderContainer {
+    flex-wrap: wrap;
+    padding: 0 12px;
+  }
+
+  .logoArea {
+    width: auto;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .logoBrand {
+    font-size: 22px;
+  }
+
+  .logoHighlight {
+    font-size: 16px;
+    padding: 1px 6px;
+  }
+
+  .logoDomain {
+    display: none;
+  }
+
+  .searchArea {
+    flex: none;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  .searchBox {
+    height: 36px;
+  }
+
+  .hotWords {
+    display: none;
+  }
+}

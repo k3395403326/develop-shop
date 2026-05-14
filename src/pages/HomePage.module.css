@@ -361,16 +361,113 @@
   .recommendGrid {
     grid-template-columns: repeat(3, 1fr);
   }
+  .heroTitle {
+    font-size: 28px;
+  }
+  .heroImageWrapper {
+    width: 200px;
+    height: 200px;
+  }
 }
 
 @media (max-width: 768px) {
+  .homePage {
+    padding-top: 5px;
+  }
+
   .leftMenu {
     display: none;
   }
+
   .firstScreen {
-    height: 300px;
+    height: auto;
+    min-height: 200px;
   }
+
+  .heroBanner {
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .heroTitle {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .heroSubTitle {
+    font-size: 14px;
+  }
+
+  .heroImageWrapper {
+    width: 140px;
+    height: 140px;
+    margin-top: 10px;
+  }
+
+  .hotTag {
+    right: 15px;
+    bottom: 15px;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .sliderDots {
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .recommendSection {
+    margin-top: 15px;
+  }
+
+  .sectionHeader {
+    margin-bottom: 12px;
+  }
+
+  .sectionTitle {
+    font-size: 18px;
+  }
+
   .recommendGrid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .productCard {
+    padding: 8px;
+  }
+
+  .productName {
+    font-size: 13px;
+    height: 38px;
+  }
+
+  .priceValue {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroTitle {
+    font-size: 18px;
+  }
+
+  .heroSubTitle {
+    font-size: 12px;
+  }
+
+  .heroImageWrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .sectionTitle {
+    font-size: 16px;
+  }
+
+  .refreshIndicator {
+    font-size: 11px;
   }
 }
