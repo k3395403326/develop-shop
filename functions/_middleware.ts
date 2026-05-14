@@ -163,20 +163,24 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     }
 
     // 检查 3：记录访问日志（最近 200 条）
-    const rawUA = request.headers.get('user-agent') || '';
-    const logEntry = JSON.stringify({
-      ip: visitorIP,
-      path: url.pathname,
-      time: new Date().toISOString(),
-      device: parseDevice(rawUA),
-      ua: rawUA,
-    });
-    const existingLogs = await env.SITE_CONFIG.get('access_logs');
-    const logs: string[] = existingLogs ? JSON.parse(existingLogs) : [];
-    logs.unshift(logEntry);
-    if (logs.length > 200) logs.length = 200;
-    // 写入日志（不阻塞请求）
-    context.waitUntil(env.SITE_CONFIG.put('access_logs', JSON.stringify(logs)));
+    // 只记录页面访问，过滤掉 API 调用、静态资源、图标等杂项请求
+    const skipLog = path.startsWith('/api/') || path.startsWith('/assets/') || path.endsWith('.ico') || path.endsWith('.js') || path.endsWith('.css') || path.endsWith('.png') || path.endsWith('.jpg');
+    if (!skipLog) {
+      const rawUA = request.headers.get('user-agent') || '';
+      const logEntry = JSON.stringify({
+        ip: visitorIP,
+        path: url.pathname,
+        time: new Date().toISOString(),
+        device: parseDevice(rawUA),
+        ua: rawUA,
+      });
+      const existingLogs = await env.SITE_CONFIG.get('access_logs');
+      const logs: string[] = existingLogs ? JSON.parse(existingLogs) : [];
+      logs.unshift(logEntry);
+      if (logs.length > 200) logs.length = 200;
+      // 写入日志（不阻塞请求）
+      context.waitUntil(env.SITE_CONFIG.put('access_logs', JSON.stringify(logs)));
+    }
 
   } catch (e) {
     // KV 出错时不影响正常访问
