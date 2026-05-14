@@ -90,8 +90,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const { request, env, next } = context;
   const url = new URL(request.url);
 
-  // 放行管理员相关请求（API 和管理面板页面本身）
-  if (url.pathname.startsWith('/api/admin') || url.pathname.startsWith('/admin')) {
+  // 放行管理员相关请求和静态资源
+  // /admin - 管理面板页面
+  // /api/admin - 管理后台 API
+  // /assets/ - JS/CSS 等静态资源（管理面板渲染需要）
+  const path = url.pathname;
+  if (path.startsWith('/api/admin') || path.startsWith('/admin') || path.startsWith('/assets/')) {
     return next();
   }
 
