@@ -1,0 +1,388 @@
+/* ========= 登录页面 ========= */
+.loginWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  font-family: 'Microsoft YaHei', sans-serif;
+}
+
+.loginCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 50px 40px;
+  border-radius: 16px;
+  text-align: center;
+  width: 380px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.loginCard h1 {
+  color: #fff;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.loginIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.loginHint {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.loginInput {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+  margin-bottom: 16px;
+}
+
+.loginInput:focus {
+  border-color: #4fc3f7;
+}
+
+.loginInput::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.loginBtn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #4fc3f7, #2196f3);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.loginBtn:hover {
+  opacity: 0.9;
+}
+
+/* ========= 管理面板 ========= */
+.adminWrapper {
+  min-height: 100vh;
+  background: #0f1923;
+  font-family: 'Microsoft YaHei', sans-serif;
+  color: #e0e0e0;
+}
+
+.adminHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.adminHeader h1 {
+  font-size: 22px;
+  color: #fff;
+}
+
+.logoutBtn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.logoutBtn:hover {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.dashboard {
+  padding: 24px 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.card h2 {
+  font-size: 18px;
+  color: #fff;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logCard {
+  grid-column: 1 / -1;
+}
+
+/* ========= 状态区域 ========= */
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.statusOn {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.statusOff {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.hint {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+/* ========= 按钮 ========= */
+.btnRed {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #e53935, #c62828);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.btnRed:hover { opacity: 0.9; }
+.btnRed:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnGreen {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #43a047, #2e7d32);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.btnGreen:hover { opacity: 0.9; }
+.btnGreen:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btnBlue {
+  padding: 8px 16px;
+  background: #1976d2;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: opacity 0.3s;
+}
+
+.btnBlue:hover { opacity: 0.85; }
+
+.btnGray {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btnGray:hover { border-color: rgba(255, 255, 255, 0.3); color: #fff; }
+
+.btnSmall {
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btnSmall:hover { border-color: #4caf50; color: #4caf50; }
+
+.btnSmallRed {
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  border-radius: 4px;
+  color: rgba(255, 100, 100, 0.7);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btnSmallRed:hover { border-color: #f44336; color: #f44336; background: rgba(244, 67, 54, 0.1); }
+
+/* ========= IP 封禁 ========= */
+.banInputRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.banInput {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+}
+
+.banInput:focus { border-color: #4fc3f7; }
+.banInput::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+.bannedList h3 {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 12px;
+}
+
+.bannedItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(244, 67, 54, 0.08);
+  border: 1px solid rgba(244, 67, 54, 0.15);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.bannedItem code {
+  color: #ff8a80;
+  font-size: 14px;
+}
+
+/* ========= 日志 ========= */
+.logHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logHeader h2 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border: none;
+}
+
+.logTable {
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.logTable table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.logTable th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  background: #0f1923;
+}
+
+.logTable td {
+  padding: 10px 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.logTable code {
+  color: #4fc3f7;
+}
+
+.logTable tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* ========= 提示消息 ========= */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 28px;
+  background: rgba(76, 175, 80, 0.95);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ========= 响应式 ========= */
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+  .adminHeader {
+    padding: 16px;
+  }
+  .loginCard {
+    width: 90%;
+    padding: 36px 24px;
+  }
+}
