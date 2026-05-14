@@ -308,7 +308,7 @@ const AdminPage: React.FC = () => {
                     <tr key={i}>
                       <td>{new Date(log.time).toLocaleString('zh-CN')}</td>
                       <td><code>{log.ip}</code></td>
-                      <td>{log.device || '—'}</td>
+                      <td title={log.ua}>{log.device || '—'}</td>
                       <td>{log.path}</td>
                       <td>
                         <button
